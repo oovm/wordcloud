@@ -13,19 +13,18 @@ pub struct Sprite {
     img: f32,
 }
 
-
-
 impl Default for Sprite {
     fn default() -> Self {
-        Self {
-            text: String::new(),
-            rotate: 0.0,
-            x: 0.0,
-            y: 0.0,
-            tree: Default::default(),
-            font_sie: 0.0,
-            img: 0.0,
-        }
+        Self { text: String::new(), rotate: 0.0, x: 0.0, y: 0.0, tree: Default::default(), font_sie: 0.0, img: 0.0 }
     }
 }
 
+impl Sprite {
+    pub fn from_font() -> Self {
+        unimplemented!()
+    }
+
+    pub fn from_image() -> Self {
+        unimplemented!()
+    }
+}
