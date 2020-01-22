@@ -1,0 +1,12 @@
+[workspace]
+members = ["projects/*"]
+default-members = [
+    "projects/wordcloud-rs",
+    "projects/wordcloud-web",
+]
+exclude = [
+    "projects/.DS_Store",
+]
+
+[profile.release]
+lto = true
