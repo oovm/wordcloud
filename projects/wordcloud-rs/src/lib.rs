@@ -1,5 +1,8 @@
 // mod renderer;
-mod sprite;
+mod canvas;
+mod layout;
+
+pub use canvas::{Canvas, QuadTree, Sprite};
 
 // pub type QrResult<T> = std::result::Result<T, QrError>;
 

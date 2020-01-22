@@ -6,7 +6,7 @@ pub struct QuadTree {
     y2: f32,
     width: f32,
     height: f32,
-    children: Vec<QuadTree>,
+    pub children: Vec<QuadTree>,
 }
 
 impl Default for QuadTree {
@@ -32,21 +32,11 @@ impl QuadTree {
                     return true;
                 }
                 else {
-                    for ct in other.children.iter() {
-                        if self.overlaps(ct, x1, y1, x2, y2) {
-                            return true;
-                        }
-                    }
-                    return false;
+                    other.children.iter().any(|ct| self.overlaps(ct, x1, y1, x2, y2))
                 }
             }
             else {
-                for ct in self.children.iter() {
-                    if other.overlaps(ct, x2, y2, x1, y1) {
-                        return true;
-                    }
-                }
-                return false;
+                self.children.iter().any(|ct| other.overlaps(ct, x2, y2, x1, y1))
             }
         }
         else {
