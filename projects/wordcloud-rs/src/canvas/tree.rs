@@ -1,17 +1,17 @@
 #[derive(Debug, Clone)]
 pub struct QuadTree {
-    x1: f32,
-    y1: f32,
-    x2: f32,
-    y2: f32,
-    width: f32,
-    height: f32,
+    pub x1: f32,
+    pub y1: f32,
+    pub x2: f32,
+    pub y2: f32,
+    pub width: u32,
+    pub height: u32,
     pub children: Vec<QuadTree>,
 }
 
 impl Default for QuadTree {
     fn default() -> Self {
-        Self { x1: 0.0, y1: 0.0, x2: 0.0, y2: 0.0, width: 0.0, height: 0.0, children: vec![] }
+        Self { x1: 0.0, y1: 0.0, x2: 0.0, y2: 0.0, width: 0, height: 0, children: vec![] }
     }
 }
 
