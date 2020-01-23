@@ -5,32 +5,49 @@ use image::{DynamicImage, GenericImageView};
 pub struct Sprite {
     x: f32,
     y: f32,
-    pub rotate: f32,
-    pub text: String,
+    rotate: u32,
+    text: String,
+    font: String,
     font_size: f32,
-    pub image: DynamicImage,
+    image: DynamicImage,
     tree: QuadTree,
 }
 
 impl Default for Sprite {
     fn default() -> Self {
-        Self { text: String::new(), rotate: 0.0, x: 0.0, y: 0.0, tree: Default::default(), font_size: 0.0, image: 0.0 }
+        Self {
+            text: String::new(),
+            rotate: 0,
+            x: 0.0,
+            y: 0.0,
+            tree: Default::default(),
+            font_size: 0.0,
+            image: DynamicImage::new_luma8(100, 100),
+            font: "".to_string(),
+        }
     }
 }
 
 impl Sprite {
-    pub fn from_text(text: &str, font: &str, size: f32) -> Self {
+    pub fn from_text(text: &str, font: &str, size: f32, rotate: u32) -> Self {
         let img: DynamicImage = render_text();
 
-        Self { x: 0.0, y: 0.0, rotate: 0.0, text: String::from(text), font_size: size, image: img, tree: Default::default() }
+        Self { text: String::from(text), font: String::from(font), font_size: size, ..Sprite::from_image(&img, rotate) }
     }
 
-    pub fn from_image(img: &DynamicImage) -> Self {
+    pub fn from_image(img: &DynamicImage, rotate: u32) -> Self {
         let integral = np.cumsum(np.cumsum(np.asarray(img), axis = 1), axis = 0);
         let width = img.width();
         let height = img.height();
-        let tree = Sprite::build_tree(integral, 1, 1, width - 2, height - 2);
-        Self { x: 0.0, y: 0.0, rotate: 0.0, text: String::new(), font_size: 0.0, image: img.clone(), tree }
+        let tree = Sprite::build_tree(integral, 1, 1, width - 2, height - 2).unwrap();
+        Self { rotate, image: img.clone(), tree, ..Sprite::default() }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.image.width()
+    }
+    pub fn height(&self) -> u32 {
+        self.image.height()
     }
 
     fn build_tree(integral: &Vec<Vec<f32>>, x1: f32, y1: f32, x2: f32, y2: f32) -> Option<QuadTree> {

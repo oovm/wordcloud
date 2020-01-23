@@ -1,7 +1,9 @@
 mod sprite;
 mod tree;
 
+use crate::Result;
 use image::{DynamicImage, GenericImageView};
+use rand::{distributions::WeightedIndex, thread_rng, Rng};
 pub use sprite::Sprite;
 use std::collections::BTreeSet;
 pub use tree::QuadTree;
@@ -32,11 +34,11 @@ impl Default for Canvas {
         }
     }
 }
-/*
+
 impl Canvas {
     fn add_sprite(&self, sprite: Sprite, x: f32, y: f32) {
-        let width = sprite.image.width();
-        let height = sprite.image.height();
+        let width = sprite.width();
+        let height = sprite.height();
         let from_x = x / self.size;
         let from_y = y / self.size;
         let into_x = (x + width) / self.size;
@@ -52,8 +54,8 @@ impl Canvas {
         }
     }
     fn check_sprite(&self, sprite: Sprite, x: f32, y: f32) {
-        let width = sprite.image.width();
-        let height = sprite.image.height();
+        let width = sprite.width();
+        let height = sprite.height();
         let from_x = x / self.size;
         let from_y = y / self.size;
         let into_x = (x + width) / self.size;
@@ -73,57 +75,62 @@ impl Canvas {
 
     pub fn draw(&self, words: Vec<(Sprite, u32)>) {
         let mut sprites = vec![];
-        for (sprite, weight) in words {
-
-        }
+        for (sprite, weight) in words {}
         let mut prev_sprite = false;
         let mut offset = 0;
         let mut i = 0;
         let should_fast_skip = 0.8;
         while i < sprites.len() {
-
-            if !(prev_sprite && ((sprite.img.size[0] * sprite.img.size[1]) / (prev_sprite.img.size[0] * prev_sprite.img.size[1]) > should_fast_skip)) {
+            if !(prev_sprite
+                && ((sprite.img.size[0] * sprite.img.size[1]) / (prev_sprite.img.size[0] * prev_sprite.img.size[1])
+                    > should_fast_skip))
+            {
                 offset = 0
             }
-            let (x,y,offset) = find_position();
-            match x.is_none {
-                if !prev_sprite {
-                    break
+            let (x, y, offset) = find_position();
+            if x.is_none {
+                if prev_sprite.is_none() {
+                    break;
                 };
                 prev_sprite = None;
                 offset = 0;
-                continue
+                continue;
             }
             if x > width || x < 0 || y > height || y < 0 {
-                if !prev_sprite {
-                    break
+                if !prev_sprite.is_none() {
+                    break;
                 }
                 prev_sprite = None;
                 offset = 0;
-                continue
+                continue;
             };
 
             println!("放置第 {} 个词语: {} at {} {}", i, sprite.text, x, y);
-            i += 1
-            prev_sprite = sprite
-            bounds.add_sprite(sprite, x, y)
-            sprite.x = x
-            sprite.y = y
+            i += 1;
+            prev_sprite = sprite;
+            bounds.add_sprite(sprite, x, y);
+            sprite.x = x;
+            sprite.y = y;
             // 在画布上绘制单词
-            size = font.getsize(sprite.text)
-            img_txt = Image.new('RGBA', (size[0] + 2, size[1] + 2))
-            draw_txt = ImageDraw.Draw(img_txt)
+            size = font.getsize(sprite.text);
+            img_txt = Image.new("RGBA", (size[0] + 2, size[1] + 2));
+            draw_txt = ImageDraw.Draw(img_txt);
             let color = self.color_mask.get_pixel(x, y);
+            draw_txt.text((1, 1), sprite.text);
 
-            draw_txt.text((1,1), sprite.text, font=font, fill=color)
-
-
-            img_txt = img_txt.rotate(sprite.rotate, resample=Image.BILINEAR, expand=1)
-            img.alpha_composite(img_txt, (x,y))
-
+            img_txt = img_txt.rotate(sprite.rotate);
+            img.alpha_composite(img_txt, (x, y))
         }
-
-
     }
 }
-*/
+
+pub fn sample_rotate(choices: &[u32], weights: &[u32]) -> Result<u32> {
+    let n = if choices.is_empty() {
+        0
+    }
+    else {
+        let mut dist = WeightedIndex::new(weights)?;
+        unsafe { choices.get_unchecked(dist.sample(&mut thread_rng())) }
+    };
+    Ok(n)
+}

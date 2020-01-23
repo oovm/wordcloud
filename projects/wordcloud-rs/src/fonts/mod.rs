@@ -1,4 +1,4 @@
-use crate::RenderDevice;
+use crate::{RenderDevice, Result};
 
 pub struct Text {
     font: String,
