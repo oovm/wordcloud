@@ -1,4 +1,5 @@
 use crate::{RenderDevice, Result};
+use image::DynamicImage;
 
 pub struct Text {
     font: String,
@@ -7,15 +8,23 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn render(&self) {
+    pub fn render(&self) -> DynamicImage {
         match self.device {
-            RenderDevice::Wasm => {}
-            RenderDevice::Native => {}
-            RenderDevice::GPU => {}
+            RenderDevice::Native => self.render_native(),
+            RenderDevice::Wasm => self.render_wasm(),
+            RenderDevice::GPU => self.render_gpu(),
         }
     }
 
-    fn render_wasm(&self) {}
+    fn render_wasm(&self) -> DynamicImage {
+        unimplemented!()
+    }
 
-    fn render_gpu(&self) {}
+    fn render_gpu(&self) -> DynamicImage {
+        unimplemented!()
+    }
+
+    fn render_native(&self) -> DynamicImage {
+        unimplemented!()
+    }
 }

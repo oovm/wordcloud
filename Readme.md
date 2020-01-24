@@ -1,4 +1,5 @@
-Rust Template Project
-=====================
+WordCloud for rust
+==================
 
-Rust template project for monorepo
+The most flexible and comprehensive word cloud generator!
+

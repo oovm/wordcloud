@@ -1,16 +1,16 @@
-use crate::QuadTree;
+use crate::{QuadTree, MINIMUM_COLLISION_RESOLUTION};
 use image::{DynamicImage, GenericImageView};
 
 #[derive(Debug, Clone)]
 pub struct Sprite {
-    x: f32,
-    y: f32,
-    rotate: u32,
-    text: String,
-    font: String,
-    font_size: f32,
-    image: DynamicImage,
-    tree: QuadTree,
+    pub x: u32,
+    pub y: u32,
+    pub rotate: u32,
+    pub text: String,
+    pub font: String,
+    pub font_size: u32,
+    pub image: DynamicImage,
+    pub tree: QuadTree,
 }
 
 impl Default for Sprite {
@@ -18,18 +18,18 @@ impl Default for Sprite {
         Self {
             text: String::new(),
             rotate: 0,
-            x: 0.0,
-            y: 0.0,
+            x: 0,
+            y: 0,
             tree: Default::default(),
-            font_size: 0.0,
+            font: String::from("Helvetica"),
+            font_size: 10,
             image: DynamicImage::new_luma8(100, 100),
-            font: "".to_string(),
         }
     }
 }
 
 impl Sprite {
-    pub fn from_text(text: &str, font: &str, size: f32, rotate: u32) -> Self {
+    pub fn from_text(text: &str, font: &str, size: u32, rotate: u32) -> Self {
         let img: DynamicImage = render_text();
 
         Self { text: String::from(text), font: String::from(font), font_size: size, ..Sprite::from_image(&img, rotate) }
@@ -50,7 +50,7 @@ impl Sprite {
         self.image.height()
     }
 
-    fn build_tree(integral: &Vec<Vec<f32>>, x1: f32, y1: f32, x2: f32, y2: f32) -> Option<QuadTree> {
+    fn build_tree(integral: &Vec<Vec<f32>>, x1: u32, y1: u32, x2: u32, y2: u32) -> Option<QuadTree> {
         let area = integral[(y1 - 1, x1 - 1)] + integral[(y2, x2)] - integral[(y1 - 1, x2)] + integral[(y2, x1 - 1)];
         if !area {
             return None;
@@ -59,8 +59,7 @@ impl Sprite {
         let mut children = vec![];
         let cx = (x1 + x2) / 2;
         let cy = (y1 + y2) / 2;
-        let min_rect_size = 2.0;
-        if x2 - x1 > min_rect_size || y2 - y1 > min_rect_size {
+        if x2 - x1 > MINIMUM_COLLISION_RESOLUTION || y2 - y1 > MINIMUM_COLLISION_RESOLUTION {
             if let Some(qt) = Sprite::build_tree(integral, x1, y1, cx, cy) {
                 children.push(qt)
             };
