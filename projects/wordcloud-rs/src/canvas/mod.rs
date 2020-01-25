@@ -14,12 +14,13 @@ pub struct Canvas {
     width: u32,
     height: u32,
     regions: HashMap<(u32, u32), Vec<Sprite>>,
-
     shape_mask: DynamicImage,
     color_mask: DynamicImage,
     bounds: QuadTree,
     layout: Layout,
 }
+
+
 
 impl Default for Canvas {
     fn default() -> Self {
