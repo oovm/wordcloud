@@ -1,5 +1,7 @@
 use wordcloud::WordCloud;
 
+mod custom_colors;
+
 #[test]
 fn ready() {
     println!("it works!")
