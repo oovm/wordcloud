@@ -6,9 +6,6 @@ mod text_render;
 use text_render::GlyphData;
 
 pub mod sat;
-pub mod tokenizer;
-
-pub use tokenizer::{Tokenizer, DEFAULT_EXCLUDE_WORDS_TEXT};
 
 use rand::{Rng, SeedableRng};
 use rand::rngs::{SmallRng};
