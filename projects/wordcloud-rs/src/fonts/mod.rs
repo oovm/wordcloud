@@ -9,6 +9,7 @@ pub mod sat;
 
 use rand::{Rng, SeedableRng};
 use rand::rngs::{SmallRng};
+use crate::ColorPicker;
 
 pub struct Word<'a> {
     text: &'a str,
@@ -25,7 +26,7 @@ pub enum WordCloudSize {
     FromMask(GrayImage),
 }
 
-pub struct WordCloud {
+pub struct WordCloudCanvas {
     background_color: Rgb<u8>,
     font: FontVec,
     min_font_size: f32,
@@ -35,13 +36,14 @@ pub struct WordCloud {
     word_rotate_chance: f64,
     relative_font_scaling: f32,
     rng_seed: Option<u64>,
+    colors: ColorPicker,
 }
 
-impl Default for WordCloud {
+impl Default for WordCloudCanvas {
     fn default() -> Self {
         let font = FontVec::try_from_vec(include_bytes!("../../fonts/DroidSansMono.ttf").to_vec()).unwrap();
-
-        WordCloud {
+        let mut rng = SmallRng::from_entropy();
+        WordCloudCanvas {
             background_color: Rgb([0, 0, 0]),
             font,
             min_font_size: 4.0,
@@ -51,11 +53,12 @@ impl Default for WordCloud {
             word_rotate_chance: 0.10,
             relative_font_scaling: 0.5,
             rng_seed: None,
+            colors: ColorPicker::new(vec![(Rgb::from([255, 255, 255]), 10)].into_iter(), &rng),
         }
     }
 }
 
-impl WordCloud {
+impl WordCloudCanvas {
     pub fn with_background_color(mut self, value: Rgb<u8>) -> Self {
         self.background_color = value;
         self
@@ -96,27 +99,25 @@ impl WordCloud {
     }
 }
 
-impl WordCloud {
+impl WordCloudCanvas {
     fn generate_from_word_positions(
-        rng: &mut SmallRng,
+        color: &mut ColorPicker,
         width: u32,
         height: u32,
         word_positions: Vec<Word>,
         scale: f32,
         background_color: Rgb<u8>,
-        color_func: fn(&Word, &mut SmallRng) -> Rgb<u8>,
     ) -> RgbImage {
         // TODO: Refactor this so that we can fail earlier
         if !(0.0..=100.0).contains(&scale) {
             // TODO: Idk if this is good practice
             panic!("The scale must be between 0 and 100 (both exclusive)");
-
         }
 
         let mut final_image_buffer = RgbImage::from_pixel((width as f32 * scale) as u32, (height as f32 * scale) as u32, background_color);
 
         for mut word in word_positions.into_iter() {
-            let col = color_func(&word, rng);
+            let col = color.next().unwrap();
 
             if scale != 1.0 {
                 word.font_size.x *= scale;
@@ -145,16 +146,15 @@ impl WordCloud {
         }
     }
 
-    pub fn generate_from_text(&self, text: &str, size: WordCloudSize, scale: f32) -> RgbImage {
-        self.generate_from_text_with_color_func(text, size, scale, random_color_rgb)
+    pub fn generate_from_text(&mut self, text: &str, size: WordCloudSize, scale: f32) -> RgbImage {
+        self.generate_from_text_with_color_func(text, size, scale)
     }
 
     pub fn generate_from_text_with_color_func(
-        &self,
+        &mut self,
         text: &str,
         size: WordCloudSize,
         scale: f32,
-        color_func: fn(&Word, &mut SmallRng) -> Rgb<u8>,
     ) -> RgbImage {
         let words = vec![("double", 10.0), ("plus", 20.0), ("good", 30.0), ("bad", 40.0), ("ugly", 50.0)];
 
@@ -271,8 +271,8 @@ impl WordCloud {
             last_freq = *freq;
         }
 
-        WordCloud::generate_from_word_positions(
-            &mut rng, gray_buffer.width(), gray_buffer.height(), final_words, scale, self.background_color, color_func,
+        WordCloudCanvas::generate_from_word_positions(
+           &mut self.colors, gray_buffer.width(), gray_buffer.height(), final_words, scale, self.background_color,
         )
     }
 }
