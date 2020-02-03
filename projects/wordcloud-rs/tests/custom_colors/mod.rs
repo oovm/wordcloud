@@ -1,8 +1,8 @@
-use std::collections::HashSet;
-use wordcloud::{WordCloudSize, Word};
-use rand::Rng;
-use rand::rngs::{SmallRng};
-use image::{ImageFormat, Rgb};
+
+use wordcloud::{WordCloudSize, };
+
+
+use image::{ImageFormat};
 use wordcloud::WordCloudCanvas;
 
 #[test]
@@ -17,8 +17,8 @@ fn main() {
         .to_luma8();
 
     let mask = WordCloudSize::FromMask(mask_image);
-
-    let wordcloud_image = wordcloud.generate_from_text_with_color_func(&"g", mask, 1.0);
+    let words = vec![("double", 10.0), ("plus", 20.0), ("good", 30.0), ("bad", 40.0), ("ugly", 50.0)];
+    let wordcloud_image = wordcloud.generate_from_text_with_color_func(&words, mask, 1.0);
 
     wordcloud_image.save("a_new_hope.png")
         .expect("Unable to save image a_new_hope.png");

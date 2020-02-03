@@ -1,4 +1,3 @@
-use wordcloud::WordCloudCanvas;
 
 mod custom_colors;
 
@@ -8,6 +7,6 @@ fn ready() {
 }
 
 fn test() {
-    let mut renderer = WordCloudCanvas::default();
-    renderer.append_text("ai", 1);
+    // let mut renderer = WordCloudCanvas::default();
+    // renderer.append_text("ai", 1);
 }
