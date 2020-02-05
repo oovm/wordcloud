@@ -1,9 +1,10 @@
 [package]
 name = "pvt"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Aster <192607617@qq.com>"]
 description = "Pixel Volume Tree"
-repository = "..."
+repository = "https://github.com/oovm/wordcloud"
+documentation = "https://docs.rs/pvt"
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2018"
@@ -13,7 +14,7 @@ edition = "2018"
 #nalgebra = "0.32.2"
 
 [dependencies.shape-core]
-version = "0.1.12"
+version = "0.1.14"
 #path = "C:\\Users\\Dell\\CLionProjects\\shape-rs\\projects\\shape-core"
 
 [dev-dependencies]
