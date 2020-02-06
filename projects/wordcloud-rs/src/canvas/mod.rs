@@ -1,7 +1,7 @@
 mod sprite;
 mod tree;
 
-use crate::{Layout, Result, FAST_SKIP_THRESHOLD};
+use crate::{Layout, WResult, FAST_SKIP_THRESHOLD};
 use image::{DynamicImage, GenericImageView};
 use rand::{distributions::WeightedIndex, thread_rng, Rng};
 pub use sprite::Sprite;
@@ -132,7 +132,7 @@ impl Canvas {
     }
 }
 
-pub fn sample_rotate(choices: &[u32], weights: &[u32]) -> Result<u32> {
+pub fn sample_rotate(choices: &[u32], weights: &[u32]) -> WResult<u32> {
     let n = if choices.is_empty() {
         0
     }
