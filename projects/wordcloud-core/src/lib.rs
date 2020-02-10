@@ -1,6 +1,5 @@
 // mod errors;
 
-use image::Rgb;
 use palette::rgb::channels::Rgba;
 
 mod datatype;
