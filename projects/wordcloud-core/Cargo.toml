@@ -17,6 +17,7 @@ pathfinder_text = "0.5.0"
 fontdue = "0.7.2"
 quadtree_rs = "0.1.2"
 palette = "0.6.1"
+imageproc = "0.23.0"
 
 [dependencies.diagnostic-quick]
 version = "0.2.4"
