@@ -20,8 +20,8 @@ palette = "0.6.1"
 imageproc = "0.23.0"
 
 [dependencies.diagnostic-quick]
-version = "0.2.4"
-features = ["font-kit"]
+version = "0.2.5"
+features = ["font-kit", "image"]
 
 [dev-dependencies]
 
