@@ -8,6 +8,9 @@
 *.iml
 *.ttf
 
+# Node
+node_modules/
+
 # Rust
 target/**/*
 Cargo.lock
