@@ -12,7 +12,7 @@ edition = "2018"
 shape-core = "0.1.12"
 regex = "1.7.3"
 ab_glyph = "0.2.20"
-image = "0.24.6"
+image = "0.25.1"
 rand = { version = "0.8.5", features = ["small_rng"] }
 rayon = "1.7.0"
 
