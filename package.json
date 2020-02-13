@@ -7,5 +7,6 @@
         "push": "wee test && git push",
         "reset": "git reset Head~ --soft",
         "u": "cargo upgrade --workspace"
-    }
+    },
+    "packageManager": "pnpm@10.11.0"
 }
