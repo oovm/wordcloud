@@ -6,8 +6,7 @@ export { QuadTree } from './quadtree';
 export { LayoutEngine } from './layout-engine';
 export { WordCloudRenderer, CanvasWordCloudRenderer, SVGWordCloudRenderer } from './renderer';
 export { ThemeManager } from './theme-manager';
-export { TextAnalyzer } from './text-analyzer';
-export type { AnalyzeOptions } from './text-analyzer';
+export { DataAnalyzer } from './data-analyzer';
 
 import { LayoutEngine } from './layout-engine';
 import { WordCloudRenderer } from './renderer';

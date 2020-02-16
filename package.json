@@ -1,12 +1,32 @@
 {
+    "name": "wordcloud-workspace",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
-        "build": "cargo build --release",
-        "test": "cargo test --release",
+        "build": "pnpm -r build",
+        "build:rs": "cargo build --release",
+        "build:ts": "pnpm --filter wordcloud-ts build",
+        "build:web": "pnpm --filter wordcloud-web build",
+        "test": "pnpm -r test",
+        "test:rs": "cargo test --release",
+        "test:ts": "pnpm --filter wordcloud-ts test",
+        "test:web": "pnpm --filter wordcloud-web test",
+        "dev": "pnpm -r dev",
+        "dev:rs": "cd projects/wordcloud-rs && cargo run",
+        "dev:ts": "cd projects/wordcloud-ts && pnpm dev",
+        "dev:web": "pnpm --filter wordcloud-web dev",
         "fmt": "cargo fmt --all",
-        "push": "wee test && git push",
+        "lint": "pnpm -r lint",
+        "type-check": "pnpm -r type-check",
+        "push": "pnpm test && git push",
         "reset": "git reset Head~ --soft",
-        "u": "cargo upgrade --workspace"
+        "u": "cargo upgrade --workspace",
+        "clean": "pnpm -r clean && cargo clean"
     },
-    "packageManager": "pnpm@10.11.0"
+    "packageManager": "pnpm@10.11.0",
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    }
 }
