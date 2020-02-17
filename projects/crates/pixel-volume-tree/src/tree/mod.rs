@@ -1,6 +1,5 @@
-use std::iter::from_generator;
 use shape_core::{Point, Rectangle};
-
+use std::iter::from_generator;
 
 pub type AABB = Rectangle<u32>;
 
@@ -28,10 +27,7 @@ impl PixelVolumeTree {
         if bound.width() == 0 || bound.height() == 0 {
             None
         } else if bound.width() == 1 && bound.height() == 1 {
-            Some(PixelVolumeTree::Pixel {
-                point: bound.origin(),
-                value,
-            })
+            Some(PixelVolumeTree::Pixel { point: bound.origin(), value })
         } else {
             Some(PixelVolumeTree::PureArea { bound, value })
         }
@@ -43,7 +39,7 @@ impl PixelVolumeTree {
             PixelVolumeTree::SplitArea { bound, .. } => *bound,
         }
     }
-    pub fn get_areas(&self) -> impl Iterator<Item=&PixelVolumeTree> {
+    pub fn get_areas(&self) -> impl Iterator<Item = &PixelVolumeTree> {
         from_generator(move || {
             if let PixelVolumeTree::SplitArea { areas, .. } = self {
                 for area in areas {
@@ -52,7 +48,7 @@ impl PixelVolumeTree {
             }
         })
     }
-    pub fn mut_areas(&mut self) -> impl Iterator<Item=&mut PixelVolumeTree> {
+    pub fn mut_areas(&mut self) -> impl Iterator<Item = &mut PixelVolumeTree> {
         from_generator(move || {
             if let PixelVolumeTree::SplitArea { areas, .. } = self {
                 for area in areas {
@@ -111,12 +107,8 @@ impl PixelVolumeTree {
     }
     pub fn contains_pixel(&self, x: u32, y: u32) -> bool {
         match self {
-            PixelVolumeTree::Pixel { point, value } => {
-                point.x == x && point.y == y && *value
-            }
-            PixelVolumeTree::PureArea { bound, value } => {
-                bound.contains(&Point::new(x, y)) && *value
-            }
+            PixelVolumeTree::Pixel { point, value } => point.x == x && point.y == y && *value,
+            PixelVolumeTree::PureArea { bound, value } => bound.contains(&Point::new(x, y)) && *value,
             PixelVolumeTree::SplitArea { bound, areas } => {
                 if bound.contains(&Point::new(x, y)) {
                     for area in areas {
@@ -131,18 +123,14 @@ impl PixelVolumeTree {
     }
     pub fn overlaps_box(&self, other: &AABB) -> bool {
         match self {
-            PixelVolumeTree::Pixel { point, value } => {
-                match value {
-                    true => other.contains(point),
-                    false => false,
-                }
-            }
-            PixelVolumeTree::PureArea { bound, value } => {
-                match value {
-                    true => bound.overlaps(other),
-                    false => false,
-                }
-            }
+            PixelVolumeTree::Pixel { point, value } => match value {
+                true => other.contains(point),
+                false => false,
+            },
+            PixelVolumeTree::PureArea { bound, value } => match value {
+                true => bound.overlaps(other),
+                false => false,
+            },
             PixelVolumeTree::SplitArea { bound, areas } => {
                 if bound.overlaps(other) {
                     for area in areas {
@@ -157,18 +145,14 @@ impl PixelVolumeTree {
     }
     pub fn overlaps_tree(&self, other: &PixelVolumeTree) -> bool {
         match self {
-            PixelVolumeTree::Pixel { point, value } => {
-                match value {
-                    true => other.contains_pixel(point.x, point.y),
-                    false => false,
-                }
-            }
-            PixelVolumeTree::PureArea { bound, value } => {
-                match value {
-                    true => other.overlaps_box(bound),
-                    false => false,
-                }
-            }
+            PixelVolumeTree::Pixel { point, value } => match value {
+                true => other.contains_pixel(point.x, point.y),
+                false => false,
+            },
+            PixelVolumeTree::PureArea { bound, value } => match value {
+                true => other.overlaps_box(bound),
+                false => false,
+            },
             PixelVolumeTree::SplitArea { bound, areas } => {
                 if bound.overlaps(&other.boundary()) {
                     for area in areas {
@@ -210,10 +194,7 @@ impl PixelVolumeTree {
                 if let Some(s) = PixelVolumeTree::new(AABB::new(mx + 1, my + 1, ex, ey), false) {
                     areas.push(s);
                 }
-                *self = PixelVolumeTree::SplitArea {
-                    bound: *bound,
-                    areas,
-                };
+                *self = PixelVolumeTree::SplitArea { bound: *bound, areas };
             }
         }
     }
@@ -262,18 +243,16 @@ impl PixelVolumeTree {
                 let mut value = None;
                 for area in areas {
                     match area.is_pure() {
-                        Some(v) => {
-                            match value {
-                                Some(v2) => {
-                                    if v != v2 {
-                                        return None;
-                                    }
-                                }
-                                None => {
-                                    value = Some(v);
+                        Some(v) => match value {
+                            Some(v2) => {
+                                if v != v2 {
+                                    return None;
                                 }
                             }
-                        }
+                            None => {
+                                value = Some(v);
+                            }
+                        },
                         None => {
                             return None;
                         }

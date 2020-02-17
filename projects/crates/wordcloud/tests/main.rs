@@ -1,4 +1,3 @@
-
 mod custom_colors;
 
 #[test]

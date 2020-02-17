@@ -1,12 +1,11 @@
 [workspace]
-members = ["projects/*"]
+members = ["projects/crates/*"]
 default-members = [
-    "projects/wordcloud-rs",
+    "projects/crates/wordcloud",
 ]
 exclude = [
     "projects/.DS_Store",
-    "projects/wordcloud-ts",
-    "projects/wordcloud-web",
+    "projects/packages",
 ]
 
 [profile.release]

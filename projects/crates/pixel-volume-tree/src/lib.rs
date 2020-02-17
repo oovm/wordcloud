@@ -4,4 +4,4 @@
 
 mod tree;
 
-pub use crate::tree::{PixelVolumeTree, AABB};
+pub use crate::tree::{AABB, PixelVolumeTree};
