@@ -1,0 +1,50 @@
+{
+    "name": "@doki-land/wordcloud",
+    "version": "0.1.0",
+    "description": "Word cloud layout engine and <word-cloud> custom element",
+    "type": "module",
+    "license": "MIT",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./element": {
+            "types": "./dist/element/index.d.ts",
+            "import": "./dist/element/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage",
+        "clean": "rm -rf dist",
+        "lint": "echo 'No linting configured'",
+        "type-check": "tsc --noEmit"
+    },
+    "keywords": [
+        "wordcloud",
+        "word-cloud",
+        "custom-element",
+        "web-component",
+        "quadtree",
+        "canvas",
+        "svg"
+    ],
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@vitest/coverage-v8": "^1.0.0",
+        "@vitest/ui": "^1.0.0",
+        "jsdom": "^23.0.0",
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    },
+    "dependencies": {
+        "canvas": "^2.11.0"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "noEmit": false,
+        "allowImportingTsExtensions": false,
+        "noUncheckedIndexedAccess": false,
+        "strictNullChecks": false
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "tests"]
+}
