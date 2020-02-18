@@ -1,6 +1,11 @@
+root = true
+
 [*]
 charset = utf-8
 
+[*.{js,ts,mjs,cjs,json,jsonc,vue}]
+indent_style = space
+indent_size = 4
 
 [*.pest]
 indent_style = space

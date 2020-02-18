@@ -10,6 +10,7 @@
 
 # Node
 node_modules/
+dist/
 
 # Rust
 target/**/*
