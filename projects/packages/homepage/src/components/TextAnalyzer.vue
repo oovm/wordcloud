@@ -268,300 +268,313 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { Icon } from '@iconify/vue'
-import * as natural from 'natural'
+import { Icon } from "@iconify/vue";
+import * as natural from "natural";
 // @ts-ignore
-import * as nodejieba from 'nodejieba'
-import Papa from 'papaparse'
-import type { WordCloudElement } from '../types'
+import * as nodejieba from "nodejieba";
+import Papa from "papaparse";
+import { computed, ref, watch } from "vue";
+import type { WordCloudElement } from "../types";
 
 interface WordFrequencyItem extends WordCloudElement {
-  selected: boolean
-  color: string
-  fontSize: number
+    selected: boolean;
+    color: string;
+    fontSize: number;
 }
 
 interface AnalysisOptions {
-  minFrequency: number
-  maxWords: number
+    minFrequency: number;
+    maxWords: number;
 }
 
 const emit = defineEmits<{
-  'words-analyzed': [words: WordCloudElement[]]
-}>()
+    "words-analyzed": [words: WordCloudElement[]];
+}>();
 
 // 状态管理
-const showTextInput = ref(false)
-const showFileUpload = ref(false)
-const showWordFrequency = ref(false)
+const showTextInput = ref(false);
+const showFileUpload = ref(false);
+const showWordFrequency = ref(false);
 
 // 文本输入相关
-const inputText = ref('')
+const inputText = ref("");
 const analysisOptions = ref<AnalysisOptions>({
-  minFrequency: 1,
-  maxWords: 100
-})
-const stopWordsInput = ref('的,了,是,在,有,和,就,不,人,都,一,一个,这,那,我,你,他,她,它,们,个,中,上,下,来,去,出,到,时,会,可,能,要,说,看,得,过,还,也,就,只,很,更,最,太,非常')
+    minFrequency: 1,
+    maxWords: 100,
+});
+const stopWordsInput = ref(
+    "的,了,是,在,有,和,就,不,人,都,一,一个,这,那,我,你,他,她,它,们,个,中,上,下,来,去,出,到,时,会,可,能,要,说,看,得,过,还,也,就,只,很,更,最,太,非常",
+);
 
 // 文件上传相关
-const uploadedFile = ref<File | null>(null)
-const fileInput = ref<HTMLInputElement>()
+const uploadedFile = ref<File | null>(null);
+const fileInput = ref<HTMLInputElement>();
 
 // 词频统计相关
-const wordFrequencies = ref<WordFrequencyItem[]>([])
-const searchKeyword = ref('')
+const wordFrequencies = ref<WordFrequencyItem[]>([]);
+const searchKeyword = ref("");
 
 // 停用词列表
 const stopWords = computed(() => {
-  return new Set(stopWordsInput.value.split(',').map(word => word.trim()).filter(Boolean))
-})
+    return new Set(
+        stopWordsInput.value
+            .split(",")
+            .map((word) => word.trim())
+            .filter(Boolean),
+    );
+});
 
 // 过滤后的词频列表
 const filteredWordFrequencies = computed(() => {
-  if (!searchKeyword.value) return wordFrequencies.value
-  return wordFrequencies.value.filter(word => 
-    word.text.toLowerCase().includes(searchKeyword.value.toLowerCase())
-  )
-})
+    if (!searchKeyword.value) return wordFrequencies.value;
+    return wordFrequencies.value.filter((word) => word.text.toLowerCase().includes(searchKeyword.value.toLowerCase()));
+});
 
 // 全选状态
 const allWordsSelected = computed(() => {
-  return wordFrequencies.value.length > 0 && wordFrequencies.value.every(word => word.selected)
-})
+    return wordFrequencies.value.length > 0 && wordFrequencies.value.every((word) => word.selected);
+});
 
 // 检测文本语言
-function detectLanguage(text: string): 'zh' | 'en' | 'mixed' {
-  const chineseChars = text.match(/[\u4e00-\u9fff]/g)?.length || 0
-  const englishChars = text.match(/[a-zA-Z]/g)?.length || 0
-  
-  if (chineseChars > englishChars * 2) return 'zh'
-  if (englishChars > chineseChars * 2) return 'en'
-  return 'mixed'
+function detectLanguage(text: string): "zh" | "en" | "mixed" {
+    const chineseChars = text.match(/[\u4e00-\u9fff]/g)?.length || 0;
+    const englishChars = text.match(/[a-zA-Z]/g)?.length || 0;
+
+    if (chineseChars > englishChars * 2) return "zh";
+    if (englishChars > chineseChars * 2) return "en";
+    return "mixed";
 }
 
 // 分词函数
 function tokenizeText(text: string): string[] {
-  const language = detectLanguage(text)
-  let tokens: string[] = []
-  
-  if (language === 'zh' || language === 'mixed') {
-    // 中文分词
-    try {
-      const chineseTokens = nodejieba.cut(text, true)
-      tokens.push(...chineseTokens)
-    } catch (error) {
-      console.warn('中文分词失败，使用简单分割:', error)
-      // 简单的中文分词备选方案
-      const chineseText = text.replace(/[a-zA-Z0-9\s]+/g, ' ')
-      tokens.push(...chineseText.split('').filter(char => /[\u4e00-\u9fff]/.test(char)))
+    const language = detectLanguage(text);
+    let tokens: string[] = [];
+
+    if (language === "zh" || language === "mixed") {
+        // 中文分词
+        try {
+            const chineseTokens = nodejieba.cut(text, true);
+            tokens.push(...chineseTokens);
+        } catch (error) {
+            console.warn("中文分词失败，使用简单分割:", error);
+            // 简单的中文分词备选方案
+            const chineseText = text.replace(/[a-zA-Z0-9\s]+/g, " ");
+            tokens.push(...chineseText.split("").filter((char) => /[\u4e00-\u9fff]/.test(char)));
+        }
     }
-  }
-  
-  if (language === 'en' || language === 'mixed') {
-    // 英文分词
-    const englishText = text.replace(/[^a-zA-Z\s]/g, ' ')
-    const englishTokens = natural.WordTokenizer.prototype.tokenize(englishText)
-    tokens.push(...englishTokens)
-  }
-  
-  return tokens
+
+    if (language === "en" || language === "mixed") {
+        // 英文分词
+        const englishText = text.replace(/[^a-zA-Z\s]/g, " ");
+        const englishTokens = natural.WordTokenizer.prototype.tokenize(englishText);
+        tokens.push(...englishTokens);
+    }
+
+    return tokens;
 }
 
 // 计算词频
 function calculateWordFrequency(tokens: string[]): Map<string, number> {
-  const frequency = new Map<string, number>()
-  
-  tokens.forEach(token => {
-    const word = token.toLowerCase().trim()
-    if (word.length > 1 && !stopWords.value.has(word)) {
-      frequency.set(word, (frequency.get(word) || 0) + 1)
-    }
-  })
-  
-  return frequency
+    const frequency = new Map<string, number>();
+
+    tokens.forEach((token) => {
+        const word = token.toLowerCase().trim();
+        if (word.length > 1 && !stopWords.value.has(word)) {
+            frequency.set(word, (frequency.get(word) || 0) + 1);
+        }
+    });
+
+    return frequency;
 }
 
 // 生成随机颜色
 function generateRandomColor(): string {
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
-  ]
-  return colors[Math.floor(Math.random() * colors.length)]
+    const colors = [
+        "#FF6B6B",
+        "#4ECDC4",
+        "#45B7D1",
+        "#96CEB4",
+        "#FFEAA7",
+        "#DDA0DD",
+        "#98D8C8",
+        "#F7DC6F",
+        "#BB8FCE",
+        "#85C1E9",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // 计算字体大小
 function calculateFontSize(frequency: number, maxFrequency: number): number {
-  const minSize = 12
-  const maxSize = 48
-  const ratio = frequency / maxFrequency
-  return Math.round(minSize + (maxSize - minSize) * ratio)
+    const minSize = 12;
+    const maxSize = 48;
+    const ratio = frequency / maxFrequency;
+    return Math.round(minSize + (maxSize - minSize) * ratio);
 }
 
 // 分析文本
 function analyzeText() {
-  if (!inputText.value.trim()) return
-  
-  const tokens = tokenizeText(inputText.value)
-  const frequency = calculateWordFrequency(tokens)
-  
-  // 转换为数组并排序
-  const sortedWords = Array.from(frequency.entries())
-    .filter(([_, freq]) => freq >= analysisOptions.value.minFrequency)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, analysisOptions.value.maxWords)
-  
-  const maxFrequency = sortedWords[0]?.[1] || 1
-  
-  wordFrequencies.value = sortedWords.map(([text, freq]) => ({
-    text,
-    frequency: freq,
-    selected: true,
-    color: generateRandomColor(),
-    fontSize: calculateFontSize(freq, maxFrequency)
-  }))
-  
-  showTextInput.value = false
-  
-  // 发送分析结果
-  emitAnalyzedWords()
+    if (!inputText.value.trim()) return;
+
+    const tokens = tokenizeText(inputText.value);
+    const frequency = calculateWordFrequency(tokens);
+
+    // 转换为数组并排序
+    const sortedWords = Array.from(frequency.entries())
+        .filter(([_, freq]) => freq >= analysisOptions.value.minFrequency)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, analysisOptions.value.maxWords);
+
+    const maxFrequency = sortedWords[0]?.[1] || 1;
+
+    wordFrequencies.value = sortedWords.map(([text, freq]) => ({
+        text,
+        frequency: freq,
+        selected: true,
+        color: generateRandomColor(),
+        fontSize: calculateFontSize(freq, maxFrequency),
+    }));
+
+    showTextInput.value = false;
+
+    // 发送分析结果
+    emitAnalyzedWords();
 }
 
 // 处理文件选择
 function handleFileSelect(event: Event) {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    uploadedFile.value = target.files[0]
-  }
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        uploadedFile.value = target.files[0];
+    }
 }
 
 // 处理文件拖拽
 function handleFileDrop(event: DragEvent) {
-  event.preventDefault()
-  if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
-    uploadedFile.value = event.dataTransfer.files[0]
-  }
+    event.preventDefault();
+    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+        uploadedFile.value = event.dataTransfer.files[0];
+    }
 }
 
 // 格式化文件大小
 function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
 // 分析文件
 async function analyzeFile() {
-  if (!uploadedFile.value) return
-  
-  try {
-    const text = await readFileAsText(uploadedFile.value)
-    
-    if (uploadedFile.value.name.endsWith('.csv')) {
-      // 解析 CSV
-      const result = Papa.parse(text, { header: true })
-      // 假设 CSV 有 text 和 frequency 列
-      const data = result.data as Array<{ text?: string; frequency?: string }>
-      
-      wordFrequencies.value = data
-        .filter(row => row.text && row.frequency)
-        .map(row => ({
-          text: row.text!,
-          frequency: parseInt(row.frequency!) || 1,
-          selected: true,
-          color: generateRandomColor(),
-          fontSize: 16
-        }))
-    } else if (uploadedFile.value.name.endsWith('.json')) {
-      // 解析 JSON
-      const data = JSON.parse(text)
-      if (Array.isArray(data)) {
-        wordFrequencies.value = data.map(item => ({
-          text: item.text || item.word || String(item),
-          frequency: item.frequency || item.count || 1,
-          selected: true,
-          color: generateRandomColor(),
-          fontSize: 16
-        }))
-      }
-    } else {
-      // 普通文本文件
-      inputText.value = text
-      analyzeText()
-      return
+    if (!uploadedFile.value) return;
+
+    try {
+        const text = await readFileAsText(uploadedFile.value);
+
+        if (uploadedFile.value.name.endsWith(".csv")) {
+            // 解析 CSV
+            const result = Papa.parse(text, { header: true });
+            // 假设 CSV 有 text 和 frequency 列
+            const data = result.data as Array<{ text?: string; frequency?: string }>;
+
+            wordFrequencies.value = data
+                .filter((row) => row.text && row.frequency)
+                .map((row) => ({
+                    text: row.text!,
+                    frequency: parseInt(row.frequency!) || 1,
+                    selected: true,
+                    color: generateRandomColor(),
+                    fontSize: 16,
+                }));
+        } else if (uploadedFile.value.name.endsWith(".json")) {
+            // 解析 JSON
+            const data = JSON.parse(text);
+            if (Array.isArray(data)) {
+                wordFrequencies.value = data.map((item) => ({
+                    text: item.text || item.word || String(item),
+                    frequency: item.frequency || item.count || 1,
+                    selected: true,
+                    color: generateRandomColor(),
+                    fontSize: 16,
+                }));
+            }
+        } else {
+            // 普通文本文件
+            inputText.value = text;
+            analyzeText();
+            return;
+        }
+
+        showFileUpload.value = false;
+        emitAnalyzedWords();
+    } catch (error) {
+        console.error("文件分析失败:", error);
+        alert("文件分析失败，请检查文件格式");
     }
-    
-    showFileUpload.value = false
-    emitAnalyzedWords()
-  } catch (error) {
-    console.error('文件分析失败:', error)
-    alert('文件分析失败，请检查文件格式')
-  }
 }
 
 // 读取文件为文本
 function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsText(file, 'utf-8')
-  })
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file, "utf-8");
+    });
 }
 
 // 全选词汇
 function selectAllWords() {
-  wordFrequencies.value.forEach(word => {
-    word.selected = true
-  })
+    wordFrequencies.value.forEach((word) => {
+        word.selected = true;
+    });
 }
 
 // 取消全选
 function deselectAllWords() {
-  wordFrequencies.value.forEach(word => {
-    word.selected = false
-  })
+    wordFrequencies.value.forEach((word) => {
+        word.selected = false;
+    });
 }
 
 // 切换全选状态
 function toggleAllWords() {
-  const shouldSelect = !allWordsSelected.value
-  wordFrequencies.value.forEach(word => {
-    word.selected = shouldSelect
-  })
+    const shouldSelect = !allWordsSelected.value;
+    wordFrequencies.value.forEach((word) => {
+        word.selected = shouldSelect;
+    });
 }
 
 // 更新词汇选择状态
 function updateWordSelection(word: WordFrequencyItem) {
-  // 选择状态已通过 v-model 更新
+    // 选择状态已通过 v-model 更新
 }
 
 // 移除词汇
 function removeWord(index: number) {
-  wordFrequencies.value.splice(index, 1)
+    wordFrequencies.value.splice(index, 1);
 }
 
 // 应用词频设置
 function applyWordFrequencies() {
-  emitAnalyzedWords()
-  showWordFrequency.value = false
+    emitAnalyzedWords();
+    showWordFrequency.value = false;
 }
 
 // 发送分析结果
 function emitAnalyzedWords() {
-  const selectedWords = wordFrequencies.value
-    .filter(word => word.selected)
-    .map(word => ({
-      text: word.text,
-      frequency: word.frequency,
-      color: word.color,
-      fontSize: word.fontSize
-    }))
-  
-  emit('words-analyzed', selectedWords)
+    const selectedWords = wordFrequencies.value
+        .filter((word) => word.selected)
+        .map((word) => ({
+            text: word.text,
+            frequency: word.frequency,
+            color: word.color,
+            fontSize: word.fontSize,
+        }));
+
+    emit("words-analyzed", selectedWords);
 }
 </script>
 

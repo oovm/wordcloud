@@ -281,43 +281,43 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import { Icon } from '@iconify/vue'
+import { Icon } from "@iconify/vue";
+import { onMounted, onUnmounted } from "vue";
 
 // Props
 interface Props {
-  visible: boolean
+    visible: boolean;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 
 // Emits
 interface Emits {
-  'update:visible': [visible: boolean]
+    "update:visible": [visible: boolean];
 }
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 
 // 关闭模态框
 const closeModal = () => {
-  emit('update:visible', false)
-}
+    emit("update:visible", false);
+};
 
 // 键盘事件处理
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    closeModal()
-  }
-}
+    if (event.key === "Escape") {
+        closeModal();
+    }
+};
 
 // 生命周期
 onMounted(() => {
-  document.addEventListener('keydown', handleKeyDown)
-})
+    document.addEventListener("keydown", handleKeyDown);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeyDown)
-})
+    document.removeEventListener("keydown", handleKeyDown);
+});
 </script>
 
 <style scoped>

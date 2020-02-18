@@ -196,251 +196,259 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { Icon } from '@iconify/vue'
-import type { WordCloudConfig, WordCloudElement, ExportOptions } from '../types'
+import { Icon } from "@iconify/vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import type { ExportOptions, WordCloudConfig, WordCloudElement } from "../types";
 
 // Props
 interface Props {
-  config: WordCloudConfig
-  elements: WordCloudElement[]
-  isGenerating: boolean
-  progress: number
+    config: WordCloudConfig;
+    elements: WordCloudElement[];
+    isGenerating: boolean;
+    progress: number;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Emits
 interface Emits {
-  'generation-complete': []
+    "generation-complete": [];
 }
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 
 // 响应式数据
-const canvasContainer = ref<HTMLDivElement>()
-const svgCanvas = ref<SVGSVGElement>()
-const zoom = ref(1)
-const panX = ref(0)
-const panY = ref(0)
-const isDragging = ref(false)
-const lastMousePos = ref({ x: 0, y: 0 })
-const showGrid = ref(false)
-const maskImage = ref<string>()
-const renderTime = ref(0)
+const canvasContainer = ref<HTMLDivElement>();
+const svgCanvas = ref<SVGSVGElement>();
+const zoom = ref(1);
+const panX = ref(0);
+const panY = ref(0);
+const isDragging = ref(false);
+const lastMousePos = ref({ x: 0, y: 0 });
+const showGrid = ref(false);
+const maskImage = ref<string>();
+const renderTime = ref(0);
 
 // 工具提示
 const tooltip = ref({
-  visible: false,
-  x: 0,
-  y: 0,
-  text: ''
-})
+    visible: false,
+    x: 0,
+    y: 0,
+    text: "",
+});
 
 // 计算属性
 const canvasHeight = computed(() => {
-  const containerWidth = 800 // 假设容器宽度
-  const aspectRatio = props.config.height / props.config.width
-  return Math.min(600, containerWidth * aspectRatio)
-})
+    const containerWidth = 800; // 假设容器宽度
+    const aspectRatio = props.config.height / props.config.width;
+    return Math.min(600, containerWidth * aspectRatio);
+});
 
 const viewBox = computed(() => {
-  return `0 0 ${props.config.width} ${props.config.height}`
-})
+    return `0 0 ${props.config.width} ${props.config.height}`;
+});
 
 const visibleElements = computed(() => {
-  return props.elements.filter(el => el.type === 'text')
-})
+    return props.elements.filter((el) => el.type === "text");
+});
 
 const imageElements = computed(() => {
-  return props.elements.filter(el => el.type === 'image')
-})
+    return props.elements.filter((el) => el.type === "image");
+});
 
 // 缩放控制
 const zoomIn = () => {
-  zoom.value = Math.min(2, zoom.value + 0.1)
-}
+    zoom.value = Math.min(2, zoom.value + 0.1);
+};
 
 const zoomOut = () => {
-  zoom.value = Math.max(0.5, zoom.value - 0.1)
-}
+    zoom.value = Math.max(0.5, zoom.value - 0.1);
+};
 
 const resetView = () => {
-  zoom.value = 1
-  panX.value = 0
-  panY.value = 0
-}
+    zoom.value = 1;
+    panX.value = 0;
+    panY.value = 0;
+};
 
 // 鼠标事件处理
 const handleWheel = (event: WheelEvent) => {
-  event.preventDefault()
-  const delta = event.deltaY > 0 ? -0.1 : 0.1
-  zoom.value = Math.max(0.5, Math.min(2, zoom.value + delta))
-}
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -0.1 : 0.1;
+    zoom.value = Math.max(0.5, Math.min(2, zoom.value + delta));
+};
 
 const handleMouseDown = (event: MouseEvent) => {
-  isDragging.value = true
-  lastMousePos.value = { x: event.clientX, y: event.clientY }
-}
+    isDragging.value = true;
+    lastMousePos.value = { x: event.clientX, y: event.clientY };
+};
 
 const handleMouseMove = (event: MouseEvent) => {
-  if (isDragging.value) {
-    const deltaX = event.clientX - lastMousePos.value.x
-    const deltaY = event.clientY - lastMousePos.value.y
-    
-    panX.value += deltaX / zoom.value
-    panY.value += deltaY / zoom.value
-    
-    lastMousePos.value = { x: event.clientX, y: event.clientY }
-  }
-}
+    if (isDragging.value) {
+        const deltaX = event.clientX - lastMousePos.value.x;
+        const deltaY = event.clientY - lastMousePos.value.y;
+
+        panX.value += deltaX / zoom.value;
+        panY.value += deltaY / zoom.value;
+
+        lastMousePos.value = { x: event.clientX, y: event.clientY };
+    }
+};
 
 const handleMouseUp = () => {
-  isDragging.value = false
-}
+    isDragging.value = false;
+};
 
 // 元素交互
 const handleElementClick = (element: WordCloudElement, index: number) => {
-  console.log('点击元素:', element)
-  // 可以添加元素编辑功能
-}
+    console.log("点击元素:", element);
+    // 可以添加元素编辑功能
+};
 
 const handleElementHover = (element: WordCloudElement, index: number, isEnter: boolean) => {
-  if (isEnter) {
-    tooltip.value = {
-      visible: true,
-      x: element.x,
-      y: element.y - 20,
-      text: `${element.text} (${element.fontSize}px)`
+    if (isEnter) {
+        tooltip.value = {
+            visible: true,
+            x: element.x,
+            y: element.y - 20,
+            text: `${element.text} (${element.fontSize}px)`,
+        };
+    } else {
+        tooltip.value.visible = false;
     }
-  } else {
-    tooltip.value.visible = false
-  }
-}
+};
 
 // 导出功能
 const exportWordCloud = (options: ExportOptions) => {
-  const startTime = performance.now()
-  
-  try {
-    if (options.format === 'svg') {
-      exportAsSVG(options)
-    } else {
-      exportAsImage(options)
+    const startTime = performance.now();
+
+    try {
+        if (options.format === "svg") {
+            exportAsSVG(options);
+        } else {
+            exportAsImage(options);
+        }
+    } catch (error) {
+        console.error("导出失败:", error);
+        alert("导出失败，请重试");
+    } finally {
+        renderTime.value = Math.round(performance.now() - startTime);
     }
-  } catch (error) {
-    console.error('导出失败:', error)
-    alert('导出失败，请重试')
-  } finally {
-    renderTime.value = Math.round(performance.now() - startTime)
-  }
-}
+};
 
 const exportAsSVG = (options: ExportOptions) => {
-  if (!svgCanvas.value) return
-  
-  const svgData = new XMLSerializer().serializeToString(svgCanvas.value)
-  const blob = new Blob([svgData], { type: 'image/svg+xml' })
-  downloadBlob(blob, 'wordcloud.svg')
-}
+    if (!svgCanvas.value) return;
+
+    const svgData = new XMLSerializer().serializeToString(svgCanvas.value);
+    const blob = new Blob([svgData], { type: "image/svg+xml" });
+    downloadBlob(blob, "wordcloud.svg");
+};
 
 const exportAsImage = (options: ExportOptions) => {
-  if (!svgCanvas.value) return
-  
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  
-  const scale = options.scale || 1
-  canvas.width = props.config.width * scale
-  canvas.height = props.config.height * scale
-  
-  // 设置背景
-  if (!options.transparent) {
-    ctx.fillStyle = props.config.backgroundColor
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-  }
-  
-  // 渲染文本元素
-  visibleElements.value.forEach(element => {
-    ctx.save()
-    ctx.translate(element.x * scale, element.y * scale)
-    ctx.rotate((element.rotation || 0) * Math.PI / 180)
-    ctx.font = `${element.fontSize! * scale}px ${element.fontFamily}`
-    ctx.fillStyle = element.color || '#000'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(element.text || '', 0, 0)
-    ctx.restore()
-  })
-  
-  // 导出图片
-  canvas.toBlob((blob) => {
-    if (blob) {
-      downloadBlob(blob, `wordcloud.${options.format}`)
+    if (!svgCanvas.value) return;
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const scale = options.scale || 1;
+    canvas.width = props.config.width * scale;
+    canvas.height = props.config.height * scale;
+
+    // 设置背景
+    if (!options.transparent) {
+        ctx.fillStyle = props.config.backgroundColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-  }, `image/${options.format}`, options.quality || 0.9)
-}
+
+    // 渲染文本元素
+    visibleElements.value.forEach((element) => {
+        ctx.save();
+        ctx.translate(element.x * scale, element.y * scale);
+        ctx.rotate(((element.rotation || 0) * Math.PI) / 180);
+        ctx.font = `${element.fontSize! * scale}px ${element.fontFamily}`;
+        ctx.fillStyle = element.color || "#000";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(element.text || "", 0, 0);
+        ctx.restore();
+    });
+
+    // 导出图片
+    canvas.toBlob(
+        (blob) => {
+            if (blob) {
+                downloadBlob(blob, `wordcloud.${options.format}`);
+            }
+        },
+        `image/${options.format}`,
+        options.quality || 0.9,
+    );
+};
 
 const downloadBlob = (blob: Blob, filename: string) => {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
 
 // 暴露方法给父组件
 defineExpose({
-  exportWordCloud,
-  resetView,
-  zoomIn,
-  zoomOut
-})
+    exportWordCloud,
+    resetView,
+    zoomIn,
+    zoomOut,
+});
 
 // 监听元素变化
-watch(() => props.elements, () => {
-  nextTick(() => {
-    emit('generation-complete')
-  })
-}, { deep: true })
+watch(
+    () => props.elements,
+    () => {
+        nextTick(() => {
+            emit("generation-complete");
+        });
+    },
+    { deep: true },
+);
 
 // 键盘快捷键
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.ctrlKey || event.metaKey) {
-    switch (event.key) {
-      case '=':
-      case '+':
-        event.preventDefault()
-        zoomIn()
-        break
-      case '-':
-        event.preventDefault()
-        zoomOut()
-        break
-      case '0':
-        event.preventDefault()
-        resetView()
-        break
-      case 'g':
-        event.preventDefault()
-        showGrid.value = !showGrid.value
-        break
+    if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+            case "=":
+            case "+":
+                event.preventDefault();
+                zoomIn();
+                break;
+            case "-":
+                event.preventDefault();
+                zoomOut();
+                break;
+            case "0":
+                event.preventDefault();
+                resetView();
+                break;
+            case "g":
+                event.preventDefault();
+                showGrid.value = !showGrid.value;
+                break;
+        }
     }
-  }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  document.addEventListener('keydown', handleKeyDown)
-})
+    document.addEventListener("keydown", handleKeyDown);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeyDown)
-})
+    document.removeEventListener("keydown", handleKeyDown);
+});
 </script>
 
 <style scoped>

@@ -357,138 +357,138 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-import { Icon } from '@iconify/vue'
-import TextAnalyzer from './TextAnalyzer.vue'
-import HelpModal from './HelpModal.vue'
-import type { WordCloudConfig, WordCloudElement } from '../types'
+import { Icon } from "@iconify/vue";
+import { computed, reactive, ref, watch } from "vue";
+import type { WordCloudConfig, WordCloudElement } from "../types";
+import HelpModal from "./HelpModal.vue";
+import TextAnalyzer from "./TextAnalyzer.vue";
 
 interface Props {
-  config: WordCloudConfig
+    config: WordCloudConfig;
 }
 
 interface Emits {
-  'update:config': [config: WordCloudConfig]
-  'generate': []
-  'export': [format: 'png' | 'svg']
+    "update:config": [config: WordCloudConfig];
+    generate: [];
+    export: [format: "png" | "svg"];
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
 
 // 本地配置状态
-const localConfig = reactive<WordCloudConfig>({ ...props.config })
+const localConfig = reactive<WordCloudConfig>({ ...props.config });
 
 // 组件状态
-const showHelp = ref(false)
-const analyzedWords = ref<WordCloudElement[]>([])
-const rotationAnglesInput = ref('')
+const showHelp = ref(false);
+const analyzedWords = ref<WordCloudElement[]>([]);
+const rotationAnglesInput = ref("");
 
 // 文件输入引用
-const maskInput = ref<HTMLInputElement>()
-const referenceInput = ref<HTMLInputElement>()
+const maskInput = ref<HTMLInputElement>();
+const referenceInput = ref<HTMLInputElement>();
 
 // 计算属性
-const hasWords = computed(() => analyzedWords.value.length > 0)
+const hasWords = computed(() => analyzedWords.value.length > 0);
 
 // 初始化角度集合输入
 if (localConfig.rotationAngles?.length) {
-  rotationAnglesInput.value = localConfig.rotationAngles.join(', ')
+    rotationAnglesInput.value = localConfig.rotationAngles.join(", ");
 }
 
 // 监听配置变化
 watch(
-  () => localConfig,
-  (newConfig) => {
-    emit('update:config', { ...newConfig })
-  },
-  { deep: true }
-)
+    () => localConfig,
+    (newConfig) => {
+        emit("update:config", { ...newConfig });
+    },
+    { deep: true },
+);
 
 // 处理文本分析结果
 function handleWordsAnalyzed(words: WordCloudElement[]) {
-  analyzedWords.value = words
+    analyzedWords.value = words;
 }
 
 // 更新旋转角度集合
 function updateRotationAngles() {
-  try {
-    const angles = rotationAnglesInput.value
-      .split(',')
-      .map(angle => parseFloat(angle.trim()))
-      .filter(angle => !isNaN(angle))
-    
-    localConfig.rotationAngles = angles
-  } catch (error) {
-    console.warn('角度解析失败:', error)
-  }
+    try {
+        const angles = rotationAnglesInput.value
+            .split(",")
+            .map((angle) => parseFloat(angle.trim()))
+            .filter((angle) => !isNaN(angle));
+
+        localConfig.rotationAngles = angles;
+    } catch (error) {
+        console.warn("角度解析失败:", error);
+    }
 }
 
 // 触发遮罩图片上传
 function triggerMaskUpload() {
-  maskInput.value?.click()
+    maskInput.value?.click();
 }
 
 // 处理遮罩图片上传
 function handleMaskUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      localConfig.maskImage = e.target?.result as string
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            localConfig.maskImage = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
     }
-    reader.readAsDataURL(file)
-  }
 }
 
 // 移除遮罩图片
 function removeMaskImage() {
-  localConfig.maskImage = undefined
-  if (maskInput.value) {
-    maskInput.value.value = ''
-  }
+    localConfig.maskImage = undefined;
+    if (maskInput.value) {
+        maskInput.value.value = "";
+    }
 }
 
 // 触发参考图片上传
 function triggerReferenceUpload() {
-  referenceInput.value?.click()
+    referenceInput.value?.click();
 }
 
 // 处理参考图片上传
 function handleReferenceUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      localConfig.referenceImage = e.target?.result as string
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            localConfig.referenceImage = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
     }
-    reader.readAsDataURL(file)
-  }
 }
 
 // 移除参考图片
 function removeReferenceImage() {
-  localConfig.referenceImage = undefined
-  if (referenceInput.value) {
-    referenceInput.value.value = ''
-  }
+    localConfig.referenceImage = undefined;
+    if (referenceInput.value) {
+        referenceInput.value.value = "";
+    }
 }
 
 // 生成词云
 function generateWordCloud() {
-  emit('generate')
+    emit("generate");
 }
 
 // 导出 PNG
 function exportPNG() {
-  emit('export', 'png')
+    emit("export", "png");
 }
 
 // 导出 SVG
 function exportSVG() {
-  emit('export', 'svg')
+    emit("export", "svg");
 }
 </script>
 
