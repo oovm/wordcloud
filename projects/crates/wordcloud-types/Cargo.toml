@@ -1,0 +1,16 @@
+[package]
+name = "wordcloud-types"
+version = "0.1.0"
+authors = ["Aster <192607617@qq.com>"]
+description = "Shared types for the wordcloud Rust workspace"
+repository = "https://github.com/oovm/wordcloud"
+readme = "Readme.md"
+license = "MPL-2.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
