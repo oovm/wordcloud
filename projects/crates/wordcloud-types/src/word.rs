@@ -11,10 +11,6 @@ pub struct WordFrequency {
 
 impl WordFrequency {
     pub fn new(word: impl Into<String>, frequency: f32) -> Self {
-        Self {
-            word: word.into(),
-            frequency,
-            kind: None,
-        }
+        Self { word: word.into(), frequency, kind: None }
     }
 }

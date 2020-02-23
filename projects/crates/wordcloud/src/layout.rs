@@ -1,10 +1,9 @@
 //! Word-cloud layout engine (spiral placement + quad-tree collision).
 
-use rand::{seq::SliceRandom, SeedableRng};
 use rand::rngs::StdRng;
+use rand::{SeedableRng, seq::SliceRandom};
 use wordcloud_types::{
-    ElementGeometry, LayoutBounds, LayoutConfig, LayoutResult, SpiralLayout, TextElement,
-    WordCloudElement, WordFrequency,
+    ElementGeometry, LayoutBounds, LayoutConfig, LayoutResult, SpiralLayout, TextElement, WordCloudElement, WordFrequency,
 };
 
 use crate::quadtree::{CollisionBox, QuadTree};
@@ -20,12 +19,7 @@ pub struct LayoutEngine {
 impl LayoutEngine {
     pub fn new(config: LayoutConfig) -> Self {
         let tree = QuadTree::new(0.0, 0.0, config.width as f32, config.height as f32);
-        Self {
-            config,
-            tree,
-            placed: Vec::new(),
-            rng: StdRng::from_entropy(),
-        }
+        Self { config, tree, placed: Vec::new(), rng: StdRng::from_entropy() }
     }
 
     pub fn layout(&mut self, words: &[WordFrequency]) -> LayoutResult {
@@ -38,12 +32,7 @@ impl LayoutEngine {
 
         let normalized = normalize_frequencies(words);
         let mut candidates = build_candidates(&normalized, &self.config);
-        candidates.sort_by(|a, b| {
-            b.geometry
-                .frequency
-                .partial_cmp(&a.geometry.frequency)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        candidates.sort_by(|a, b| b.geometry.frequency.partial_cmp(&a.geometry.frequency).unwrap_or(std::cmp::Ordering::Equal));
 
         for candidate in candidates {
             if let Some(placed) = self.try_place(&candidate) {
@@ -59,18 +48,11 @@ impl LayoutEngine {
             }
         }
 
-        LayoutResult {
-            elements: self.placed.clone(),
-            bounds: self.bounds(),
-            success: !self.placed.is_empty(),
-        }
+        LayoutResult { elements: self.placed.clone(), bounds: self.bounds(), success: !self.placed.is_empty() }
     }
 
     fn bounds(&self) -> LayoutBounds {
-        LayoutBounds {
-            width: self.config.width,
-            height: self.config.height,
-        }
+        LayoutBounds { width: self.config.width, height: self.config.height }
     }
 
     fn try_place(&mut self, element: &TextElement) -> Option<TextElement> {
@@ -110,19 +92,11 @@ impl LayoutEngine {
 
 /// Normalize word frequencies to 0..1 for font sizing.
 pub fn normalize_frequencies(words: &[WordFrequency]) -> Vec<WordFrequency> {
-    let max = words
-        .iter()
-        .map(|word| word.frequency)
-        .fold(0.0_f32, f32::max)
-        .max(1.0);
+    let max = words.iter().map(|word| word.frequency).fold(0.0_f32, f32::max).max(1.0);
 
     words
         .iter()
-        .map(|word| WordFrequency {
-            word: word.word.clone(),
-            frequency: word.frequency / max,
-            kind: word.kind,
-        })
+        .map(|word| WordFrequency { word: word.word.clone(), frequency: word.frequency / max, kind: word.kind })
         .collect()
 }
 
@@ -132,8 +106,7 @@ pub fn build_candidates(words: &[WordFrequency], config: &LayoutConfig) -> Vec<T
         .iter()
         .enumerate()
         .map(|(index, word)| {
-            let font_size =
-                config.min_font_size + (config.max_font_size - config.min_font_size) * word.frequency;
+            let font_size = config.min_font_size + (config.max_font_size - config.min_font_size) * word.frequency;
             let (width, height) = measure_text(&word.word, font_size);
             TextElement {
                 geometry: ElementGeometry {
@@ -163,10 +136,7 @@ pub fn measure_text(text: &str, font_size: f32) -> (f32, f32) {
 }
 
 fn random_rotation(rotations: &[i32], rng: &mut StdRng) -> f32 {
-    rotations
-        .choose(rng)
-        .copied()
-        .unwrap_or(0) as f32
+    rotations.choose(rng).copied().unwrap_or(0) as f32
 }
 
 /// Spiral search coordinate for a placement attempt.
@@ -175,10 +145,7 @@ pub fn spiral_position(spiral: &SpiralLayout, step: u32, center_x: f32, center_y
         SpiralLayout::Archimedean => {
             let angle = step as f32 * 0.1;
             let radius = step as f32 * 2.0;
-            (
-                center_x + radius * angle.cos(),
-                center_y + radius * angle.sin(),
-            )
+            (center_x + radius * angle.cos(), center_y + radius * angle.sin())
         }
         SpiralLayout::Rectangular => {
             let side = (step / 4) + 1;

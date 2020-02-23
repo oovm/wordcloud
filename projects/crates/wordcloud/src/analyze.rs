@@ -2,9 +2,7 @@
 
 use wordcloud_types::WordFrequency;
 
-const STOP_WORDS: &[&str] = &[
-    "the", "a", "an", "and", "or", "的", "了", "和", "是", "在",
-];
+const STOP_WORDS: &[&str] = &["the", "a", "an", "and", "or", "的", "了", "和", "是", "在"];
 
 /// Tokenize text into weighted word frequencies.
 pub fn tokenize_text(text: &str, min_length: usize, max_length: usize) -> Vec<WordFrequency> {
@@ -27,10 +25,7 @@ pub fn tokenize_text(text: &str, min_length: usize, max_length: usize) -> Vec<Wo
         *frequencies.entry(token).or_insert(0.0) += 1.0;
     }
 
-    frequencies
-        .into_iter()
-        .map(|(word, frequency)| WordFrequency::new(word, frequency))
-        .collect()
+    frequencies.into_iter().map(|(word, frequency)| WordFrequency::new(word, frequency)).collect()
 }
 
 fn push_token(token: &str, min_length: usize, max_length: usize, out: &mut Vec<String>) {

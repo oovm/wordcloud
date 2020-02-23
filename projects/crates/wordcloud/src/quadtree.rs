@@ -30,20 +30,11 @@ pub struct QuadTree {
 
 impl QuadTree {
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
-        Self {
-            root: Node::leaf(x, y, width, height, 0),
-            max_items: 10,
-            max_level: 5,
-        }
+        Self { root: Node::leaf(x, y, width, height, 0), max_items: 10, max_level: 5 }
     }
 
     pub fn clear(&mut self) {
-        let bounds = (
-            self.root.x,
-            self.root.y,
-            self.root.width,
-            self.root.height,
-        );
+        let bounds = (self.root.x, self.root.y, self.root.width, self.root.height);
         self.root = Node::leaf(bounds.0, bounds.1, bounds.2, bounds.3, 0);
     }
 
@@ -53,9 +44,7 @@ impl QuadTree {
 
     pub fn has_collision(&self, item: &CollisionBox) -> bool {
         let candidates = self.query(item.x, item.y, item.width, item.height);
-        candidates
-            .iter()
-            .any(|other| other.id != item.id && boxes_overlap(item, other))
+        candidates.iter().any(|other| other.id != item.id && boxes_overlap(item, other))
     }
 
     pub fn query(&self, x: f32, y: f32, width: f32, height: f32) -> Vec<CollisionBox> {
@@ -106,15 +95,7 @@ impl QuadTree {
 
 impl Node {
     fn leaf(x: f32, y: f32, width: f32, height: f32, level: u32) -> Self {
-        Self {
-            x,
-            y,
-            width,
-            height,
-            level,
-            items: Vec::new(),
-            children: None,
-        }
+        Self { x, y, width, height, level, items: Vec::new(), children: None }
     }
 
     fn subdivide(&mut self, max_items: usize, max_level: u32) {

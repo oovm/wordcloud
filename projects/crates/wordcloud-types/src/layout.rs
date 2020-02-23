@@ -76,18 +76,10 @@ pub struct LayoutResult {
 
 impl LayoutResult {
     pub fn failed(bounds: LayoutBounds) -> Self {
-        Self {
-            elements: Vec::new(),
-            bounds,
-            success: false,
-        }
+        Self { elements: Vec::new(), bounds, success: false }
     }
 
     pub fn validate(&self) -> WordCloudResult<()> {
-        if self.success && !self.elements.is_empty() {
-            Ok(())
-        } else {
-            Err(WordCloudError::LayoutFailed)
-        }
+        if self.success && !self.elements.is_empty() { Ok(()) } else { Err(WordCloudError::LayoutFailed) }
     }
 }

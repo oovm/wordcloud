@@ -71,14 +71,6 @@ impl WordCloudElement {
 
 impl ElementGeometry {
     pub fn from_frequency(word: &WordFrequency, id: String) -> Self {
-        Self {
-            id,
-            x: 0.0,
-            y: 0.0,
-            width: 0.0,
-            height: 0.0,
-            rotation: 0.0,
-            frequency: word.frequency,
-        }
+        Self { id, x: 0.0, y: 0.0, width: 0.0, height: 0.0, rotation: 0.0, frequency: word.frequency }
     }
 }

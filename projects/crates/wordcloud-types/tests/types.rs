@@ -1,6 +1,4 @@
-use wordcloud_types::{
-    LayoutAlgorithm, LayoutBounds, LayoutConfig, SpiralLayout, WordCloudError, WordFrequency,
-};
+use wordcloud_types::{LayoutAlgorithm, LayoutBounds, LayoutConfig, SpiralLayout, WordCloudError, WordFrequency};
 
 #[test]
 fn layout_algorithm_maps_to_spiral_layout() {
