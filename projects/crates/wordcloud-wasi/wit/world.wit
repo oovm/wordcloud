@@ -1,0 +1,47 @@
+package doki:land;
+
+interface analyze {
+    record word-frequency {
+        word: string,
+        frequency: float32,
+    }
+
+    tokenize-text: func(text: string, min-length: u32, max-length: u32) -> list<word-frequency>;
+}
+
+interface layout {
+    use analyze.{word-frequency};
+
+    record layout-config {
+        width: u32,
+        height: u32,
+        padding: float32,
+        max-attempts: u32,
+        min-font-size: float32,
+        max-font-size: float32,
+        archimedean: bool,
+    }
+
+    record placed-word {
+        word: string,
+        x: float32,
+        y: float32,
+        width: float32,
+        height: float32,
+        rotation: float32,
+        font-size: float32,
+        frequency: float32,
+    }
+
+    record layout-result {
+        words: list<placed-word>,
+        success: bool,
+    }
+
+    layout-words: func(config: layout-config, words: list<word-frequency>) -> layout-result;
+}
+
+world wordcloud {
+    export analyze;
+    export layout;
+}
