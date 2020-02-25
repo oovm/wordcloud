@@ -1,0 +1,32 @@
+{
+    "name": "@doki-land/wordcloud-core",
+    "version": "0.1.0",
+    "description": "Shared TypeScript core types and contracts for @doki-land/wordcloud",
+    "type": "module",
+    "sideEffects": false,
+    "license": "MIT",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "clean": "rm -rf dist",
+        "type-check": "tsc --noEmit"
+    },
+    "keywords": [
+        "wordcloud",
+        "typescript",
+        "core",
+        "types"
+    ],
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}
