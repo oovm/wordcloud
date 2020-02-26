@@ -1,0 +1,37 @@
+{
+    "name": "@doki-land/wordcloud-layout",
+    "version": "0.1.0",
+    "description": "Quad-tree word cloud layout engine for @doki-land/wordcloud",
+    "type": "module",
+    "sideEffects": false,
+    "license": "MIT",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "clean": "rm -rf dist",
+        "type-check": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "keywords": [
+        "wordcloud",
+        "layout",
+        "quadtree"
+    ],
+    "dependencies": {
+        "@doki-land/wordcloud-core": "workspace:*"
+    },
+    "devDependencies": {
+        "jsdom": "^23.0.0",
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    }
+}
