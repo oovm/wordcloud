@@ -1,0 +1,35 @@
+{
+    "name": "@doki-land/wordcloud-renderer",
+    "version": "0.1.0",
+    "description": "Word cloud render backends (CPU canvas/SVG, WebGPU)",
+    "type": "module",
+    "sideEffects": false,
+    "license": "MIT",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "clean": "rm -rf dist",
+        "type-check": "tsc --noEmit"
+    },
+    "keywords": [
+        "wordcloud",
+        "render",
+        "canvas",
+        "webgpu"
+    ],
+    "dependencies": {
+        "@doki-land/wordcloud-core": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}
