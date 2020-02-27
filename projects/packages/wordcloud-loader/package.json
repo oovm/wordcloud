@@ -1,0 +1,30 @@
+{
+    "name": "@doki-land/wordcloud-loader",
+    "version": "0.1.0",
+    "description": "Load word frequencies from CSV, JSON, or plain text via tokenizers",
+    "type": "module",
+    "sideEffects": false,
+    "license": "MIT",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": ["dist"],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "clean": "rm -rf dist",
+        "type-check": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "keywords": ["wordcloud", "loader", "csv", "json", "tokenizer"],
+    "dependencies": {
+        "@doki-land/wordcloud-core": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    }
+}
