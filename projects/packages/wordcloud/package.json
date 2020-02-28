@@ -1,26 +1,31 @@
 {
     "name": "@doki-land/wordcloud",
     "version": "0.1.0",
-    "description": "Word cloud layout engine and <word-cloud> custom element",
+    "description": "Word cloud facade — generator, loader, themes (see wordcloud-layout / wordcloud-renderer)",
     "type": "module",
+    "sideEffects": false,
     "license": "MIT",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
         },
-        "./element": {
-            "types": "./dist/element/index.d.ts",
-            "import": "./dist/element/index.js"
+        "./wasm": {
+            "types": "./dist/wasm.d.ts",
+            "import": "./dist/wasm.js"
         }
     },
     "files": [
         "dist"
     ],
     "scripts": {
+        "build:wasi": "cargo component build --release --manifest-path ../../crates/wordcloud-wasi/Cargo.toml",
+        "build:jco": "jco transpile ../../crates/wordcloud-wasi/target/wasm32-wasip2/release/wordcloud_wasi.wasm -o lib --name wordcloud",
         "build": "tsc",
+        "build:all": "npm run build:wasi && npm run build:jco && tsc",
         "dev": "tsc --watch",
         "test": "vitest",
+        "test:parity": "vitest run tests/wasm-parity.test.ts",
         "test:ui": "vitest --ui",
         "test:coverage": "vitest --coverage",
         "clean": "rm -rf dist",
@@ -37,6 +42,7 @@
         "svg"
     ],
     "devDependencies": {
+        "@bytecodealliance/jco": "^1.35.0",
         "@types/node": "^20.0.0",
         "@vitest/coverage-v8": "^1.0.0",
         "@vitest/ui": "^1.0.0",
@@ -45,6 +51,10 @@
         "vitest": "^1.0.0"
     },
     "dependencies": {
+        "@doki-land/wordcloud-core": "workspace:*",
+        "@doki-land/wordcloud-layout": "workspace:*",
+        "@doki-land/wordcloud-loader": "workspace:*",
+        "@doki-land/wordcloud-renderer": "workspace:*",
         "canvas": "^2.11.0"
     }
 }

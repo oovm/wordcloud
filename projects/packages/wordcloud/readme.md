@@ -2,6 +2,30 @@
 
 一个功能强大的 TypeScript 词云渲染器，支持多种图元类型、四叉树布局引擎和渐进式渲染。
 
+## 包导出
+
+| 包 / 子路径 | 用途 |
+|-------------|------|
+| `@doki-land/wordcloud-core` | 共享类型与契约 |
+| `@doki-land/wordcloud-loader` | CSV / JSON / TXT（分词器）加载词频 |
+| `@doki-land/wordcloud-layout` | `LayoutEngine` + `QuadTree` |
+| `@doki-land/wordcloud-renderer` | CPU canvas/SVG + WebGPU 后端 |
+| `@doki-land/wordcloud` | **门面**：生成器、主题、分析（`sideEffects: false`） |
+| `@doki-land/wordcloud-element` | `<word-cloud>` 自定义元素（`sideEffects: true`） |
+| `@doki-land/wordcloud/wasm` | 可选 **Rust/WASI**（整块 wasm，需显式 import） |
+
+默认请使用 `LayoutEngine` 等 TS API。需要与 Rust `wordcloud` crate 语义对齐时，单独从 `/wasm` 子路径加载：
+
+```typescript
+import { layoutWordsWasm } from "@doki-land/wordcloud/wasm";
+```
+
+WASM 对照测试（需先 `npm run build:all`）：
+
+```bash
+npm run test:parity
+```
+
 ## 特性
 
 ### 🎨 图元支持
@@ -148,22 +172,22 @@ const customTheme = themeManager.createCustomTheme(
 generator.setTheme('myTheme');
 ```
 
-### 文本分析
+### 从 TXT 加载（分词器）
 
 ```typescript
-// 自定义文本分析
-const textAnalyzer = generator.getTextAnalyzer();
-const wordFrequencies = textAnalyzer.analyzeText(text, {
+import { WordCloudLoader } from "@doki-land/wordcloud-loader";
+
+const loader = generator.getLoader();
+const wordFrequencies = loader.fromText(text, {
   minLength: 2,
   maxLength: 15,
-  caseSensitive: false,
-  includeNumbers: false,
-  language: 'auto',
-  customStopWords: ['自定义', '停用词']
+  language: "auto",
+  customStopWords: ["自定义", "停用词"],
 });
 
-// 从词频数据生成词云
-const renderer = generator.generateFromWordFrequencies(wordFrequencies, canvas);
+// 注入自定义分词器（如 nodejieba / wasm tokenize）
+const customLoader = new WordCloudLoader(myTokenizer);
+const renderer = generator.generateFromWordFrequencies(customLoader.fromText(text), canvas);
 ```
 
 ### CSV/JSON 数据导入
@@ -209,7 +233,7 @@ constructor(layoutConfig: LayoutConfig)
 - `generateFromJSON(jsonText: string, canvas: HTMLCanvasElement | SVGElement, options?: GenerateOptions)`: 从JSON数据生成词云
 - `setTheme(themeName: string)`: 设置主题
 - `getThemeManager()`: 获取主题管理器
-- `getTextAnalyzer()`: 获取文本分析器
+- `getLoader()`: 获取词频加载器
 
 #### 静态方法
 
@@ -251,17 +275,16 @@ constructor(layoutConfig: LayoutConfig)
 - `generateThemeFromImage(...)`: 从图片生成主题
 - `blendThemes(...)`: 混合两个主题
 
-### TextAnalyzer
+### WordCloudLoader
 
-文本分析器。
+词频加载器（`@doki-land/wordcloud-loader`）。
 
 #### 主要方法
 
-- `analyzeText(text: string, options?: AnalyzeOptions)`: 分析文本
-- `parseCSV(csvText: string, wordColumn?: number, frequencyColumn?: number)`: 解析CSV
-- `parseJSON(jsonText: string)`: 解析JSON
-- `addStopWords(words: string[], language?: 'english' | 'chinese')`: 添加停用词
-- `removeStopWords(words: string[], language?: 'english' | 'chinese')`: 移除停用词
+- `fromText(text: string, options?: TokenizeOptions)`: 从 `.txt` 经分词器加载
+- `fromCsv(csvText: string, options?: CsvLoadOptions)`: 从 CSV 加载
+- `fromJson(jsonText: string, options?: JsonLoadOptions)`: 从 JSON 加载
+- `getTokenizer()`: 获取当前分词器（可构造时注入）
 
 ## 类型定义
 
