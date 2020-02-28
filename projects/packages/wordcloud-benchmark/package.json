@@ -1,0 +1,23 @@
+{
+    "name": "wordcloud-benchmark",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Local benchmarks for wordcloud layout and renderer (not published)",
+    "type": "module",
+    "scripts": {
+        "bench": "tsx src/run.ts",
+        "bench:layout": "tsx src/bench-layout.ts",
+        "bench:renderer": "tsx src/bench-renderer.ts",
+        "type-check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@doki-land/wordcloud-core": "workspace:*",
+        "@doki-land/wordcloud-layout": "workspace:*",
+        "@doki-land/wordcloud-renderer": "workspace:*"
+    },
+    "devDependencies": {
+        "jsdom": "^23.0.0",
+        "tsx": "^4.19.0",
+        "typescript": "^5.0.0"
+    }
+}
