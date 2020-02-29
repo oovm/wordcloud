@@ -8,7 +8,12 @@
         "paths": {
             "@/*": ["./src/*"],
             "@doki-land/wordcloud": ["../wordcloud/src/index.ts"],
-            "@doki-land/wordcloud/*": ["../wordcloud/src/*"]
+            "@doki-land/wordcloud/*": ["../wordcloud/src/*"],
+            "@doki-land/wordcloud-core": ["../wordcloud-core/src/index.ts"],
+            "@doki-land/wordcloud-loader": ["../wordcloud-loader/src/index.ts"],
+            "@doki-land/wordcloud-layout": ["../wordcloud-layout/src/index.ts"],
+            "@doki-land/wordcloud-renderer": ["../wordcloud-renderer/src/index.ts"],
+            "@doki-land/wordcloud-element": ["../wordcloud-element/src/index.ts"]
         },
         "types": ["vite/client", "@unocss/reset/tailwind.css"],
         "noEmit": true

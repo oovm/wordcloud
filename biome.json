@@ -33,6 +33,23 @@
             "indentWidth": 4
         }
     },
+    "html": {
+        "experimentalFullSupportEnabled": true,
+        "formatter": {
+            "enabled": true,
+            "indentStyle": "space",
+            "indentWidth": 4,
+            "indentScriptAndStyle": true
+        }
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        },
+        "formatter": {
+            "indentWidth": 4
+        }
+    },
     "assist": {
         "enabled": true,
         "actions": {

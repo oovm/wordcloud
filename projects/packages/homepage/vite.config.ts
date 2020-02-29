@@ -21,6 +21,11 @@ export default defineConfig({
         alias: {
             "@": resolve(__dirname, "src"),
             "@doki-land/wordcloud": resolve(__dirname, "../wordcloud/src"),
+            "@doki-land/wordcloud-core": resolve(__dirname, "../wordcloud-core/src"),
+            "@doki-land/wordcloud-loader": resolve(__dirname, "../wordcloud-loader/src"),
+            "@doki-land/wordcloud-layout": resolve(__dirname, "../wordcloud-layout/src"),
+            "@doki-land/wordcloud-renderer": resolve(__dirname, "../wordcloud-renderer/src"),
+            "@doki-land/wordcloud-element": resolve(__dirname, "../wordcloud-element/src"),
         },
     },
     test: {
