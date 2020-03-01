@@ -13,11 +13,13 @@ import { ThemeManager } from "./theme-manager";
  */
 export class WordCloudGenerator {
     private layoutEngine: LayoutEngine;
+    private layoutConfig: LayoutConfig;
     private themeManager: ThemeManager;
     private loader: WordCloudLoader;
     private currentTheme: Theme;
 
     constructor(layoutConfig: LayoutConfig, loader?: WordCloudLoader) {
+        this.layoutConfig = layoutConfig;
         this.layoutEngine = new LayoutEngine(layoutConfig);
         this.themeManager = new ThemeManager();
         this.loader = loader ?? new WordCloudLoader();
@@ -104,22 +106,12 @@ export class WordCloudGenerator {
     }
 
     setLayoutConfig(config: Partial<LayoutConfig>): void {
-        const currentConfig = this.getLayoutConfig();
-        const newConfig = { ...currentConfig, ...config };
-        this.layoutEngine = new LayoutEngine(newConfig);
+        this.layoutConfig = { ...this.layoutConfig, ...config };
+        this.layoutEngine = new LayoutEngine(this.layoutConfig);
     }
 
     getLayoutConfig(): LayoutConfig {
-        return {
-            width: 800,
-            height: 600,
-            padding: 20,
-            rotations: [0, 90, -90],
-            spiral: "archimedean",
-            maxAttempts: 1000,
-            minFontSize: 12,
-            maxFontSize: 60,
-        };
+        return { ...this.layoutConfig };
     }
 
     getThemeManager(): ThemeManager {

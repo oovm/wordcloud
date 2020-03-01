@@ -35,5 +35,3 @@ export type { RenderBackend, RenderBackendId, TokenizeOptions } from "@doki-land
 
 /** @deprecated Use `TokenizeOptions`. */
 export type { AnalyzeOptions } from "@doki-land/wordcloud-core";
-
-export { default } from "./generator";
