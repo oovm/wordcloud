@@ -10,6 +10,7 @@
         "test": "pnpm -r test",
         "test:rs": "cargo test --release",
         "test:ts": "pnpm --filter @doki-land/wordcloud test",
+        "bench": "pnpm --filter wordcloud-benchmark bench",
         "test:web": "pnpm --filter homepage test",
         "dev": "pnpm -r dev",
         "dev:rs": "cd projects/crates/wordcloud && cargo run",

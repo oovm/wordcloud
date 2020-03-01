@@ -7,10 +7,14 @@
 .idea/**/*
 *.iml
 *.ttf
+*.log
+*.txt
 
 # Node
 node_modules/
 dist/
+projects/packages/wordcloud/lib/*
+!projects/packages/wordcloud/lib/.gitkeep
 
 # Rust
 target/**/*
