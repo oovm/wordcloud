@@ -6,14 +6,14 @@ export type Tokenizer = (text: string, options?: TokenizeOptions) => WordFrequen
 
 function splitTokens(text: string, language: TokenizeOptions["language"], includeNumbers: boolean): string[] {
     if (language === "chinese") {
-        return [...text.matchAll(/[\u4e00-\u9fff]+/g)].map((match) => match[0]);
+        return [...text.matchAll(/[\u4e00-\u9fff]/g)].map((match) => match[0]);
     }
     if (language === "english") {
         const pattern = includeNumbers ? /[a-z0-9]+/gi : /[a-z]+/gi;
         return text.match(pattern) ?? [];
     }
 
-    const cjk = [...text.matchAll(/[\u4e00-\u9fff]+/g)].map((match) => match[0]);
+    const cjk = [...text.matchAll(/[\u4e00-\u9fff]/g)].map((match) => match[0]);
     const latinPattern = includeNumbers ? /[a-z0-9]+/gi : /[a-z]+/gi;
     const latin = text.match(latinPattern) ?? [];
     return [...cjk, ...latin];

@@ -25,11 +25,13 @@ export function loadFromCsv(csvText: string, options: CsvLoadOptions = {}): Word
         }
 
         const word = columns[wordColumn];
-        const frequency = Number.parseFloat(columns[frequencyColumn]);
+        const frequencyRaw = columns[frequencyColumn];
 
-        if (!word) {
+        if (!word || frequencyRaw === undefined || frequencyRaw === "") {
             continue;
         }
+
+        const frequency = Number.parseFloat(frequencyRaw);
 
         result.push({
             word,
