@@ -190,10 +190,14 @@
         config: WordCloudConfig;
         elements: WordCloudElement[];
         isGenerating: boolean;
-        progress: number;
+        progress?: number;
+        renderTime?: number;
     }
 
-    const props = defineProps<Props>();
+    const props = withDefaults(defineProps<Props>(), {
+        progress: 0,
+        renderTime: 0,
+    });
 
     // Emits
     interface Emits {
@@ -212,7 +216,7 @@
     const lastMousePos = ref({ x: 0, y: 0 });
     const showGrid = ref(false);
     const maskImage = ref<string>();
-    const renderTime = ref(0);
+    const renderTime = computed(() => props.renderTime);
 
     // 工具提示
     const tooltip = ref({
@@ -223,11 +227,15 @@
     });
 
     // 计算属性
-    const canvasHeight = computed(() => {
-        const containerWidth = 800; // 假设容器宽度
+    const canvasHeight = ref(props.config.height);
+    const containerWidth = ref(props.config.width);
+
+    const updateCanvasSize = () => {
+        if (!canvasContainer.value) return;
+        containerWidth.value = canvasContainer.value.clientWidth;
         const aspectRatio = props.config.height / props.config.width;
-        return Math.min(600, containerWidth * aspectRatio);
-    });
+        canvasHeight.value = Math.max(320, Math.round(containerWidth.value * aspectRatio));
+    };
 
     const viewBox = computed(() => {
         return `0 0 ${props.config.width} ${props.config.height}`;
@@ -305,8 +313,6 @@
 
     // 导出功能
     const exportWordCloud = (options: ExportOptions) => {
-        const startTime = performance.now();
-
         try {
             if (options.format === "svg") {
                 exportAsSVG(options);
@@ -316,8 +322,6 @@
         } catch (error) {
             console.error("导出失败:", error);
             alert("导出失败，请重试");
-        } finally {
-            renderTime.value = Math.round(performance.now() - startTime);
         }
     };
 
@@ -429,11 +433,21 @@
     // 生命周期
     onMounted(() => {
         document.addEventListener("keydown", handleKeyDown);
+        updateCanvasSize();
+        window.addEventListener("resize", updateCanvasSize);
     });
 
     onUnmounted(() => {
         document.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("resize", updateCanvasSize);
     });
+
+    watch(
+        () => [props.config.width, props.config.height],
+        () => {
+            nextTick(updateCanvasSize);
+        },
+    );
 </script>
 
 <style scoped>

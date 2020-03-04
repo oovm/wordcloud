@@ -5,6 +5,7 @@
                 <ControlPanel
                     :config="config"
                     @update:config="updateConfig"
+                    @words-analyzed="handleWordsAnalyzed"
                     @generate="generateWordCloud"
                     @export="exportWordCloud"
                 />
@@ -12,9 +13,12 @@
 
             <div class="canvas-container">
                 <WordCloudCanvas
+                    ref="canvasRef"
                     :config="config"
-                    :words="words"
+                    :elements="elements"
                     :is-generating="isGenerating"
+                    :progress="progress"
+                    :render-time="lastRenderMs"
                     @export="exportWordCloud"
                 />
             </div>
@@ -26,23 +30,27 @@
     import { reactive, ref } from "vue";
     import ControlPanel from "./components/ControlPanel.vue";
     import WordCloudCanvas from "./components/WordCloudCanvas.vue";
+    import { layoutWordCloud, type AnalyzedWord } from "./lib/wordcloud-bridge";
     import type { WordCloudConfig, WordCloudElement } from "./types";
 
-    // 响应式数据
+    const canvasRef = ref<InstanceType<typeof WordCloudCanvas>>();
     const isGenerating = ref(false);
+    const progress = ref(0);
+    const lastRenderMs = ref(0);
+    const analyzedWords = ref<AnalyzedWord[]>([]);
+    const elements = ref<WordCloudElement[]>([]);
 
-    // 词云配置
     const config = reactive<WordCloudConfig>({
         width: 800,
         height: 600,
-        fontFamily: "Arial, sans-serif",
-        fontSizeRange: [12, 48],
+        fontFamily: "'Microsoft YaHei', sans-serif",
+        fontSizeRange: [14, 56],
         rotationRange: [-45, 45],
         rotationMode: "range",
         backgroundColor: "#ffffff",
         colorScheme: "default",
         layoutAlgorithm: "spiral",
-        padding: 10,
+        padding: 12,
         spiral: "archimedean",
         enableAnimation: false,
         animationType: "fade",
@@ -50,38 +58,77 @@
         progressiveRendering: false,
     });
 
-    // 词云元素
-    const words = ref<WordCloudElement[]>([]);
-
-    // 更新配置
     function updateConfig(newConfig: WordCloudConfig) {
         Object.assign(config, newConfig);
     }
 
-    // 生成词云
-    function generateWordCloud() {
-        if (words.value.length === 0) {
-            alert("请先分析文本内容");
+    function handleWordsAnalyzed(words: AnalyzedWord[]) {
+        analyzedWords.value = words;
+    }
+
+    async function generateWordCloud() {
+        if (analyzedWords.value.length === 0) {
+            alert("请先在左侧输入文本并完成分析");
             return;
         }
 
         isGenerating.value = true;
+        progress.value = 10;
 
-        // 这里应该调用实际的词云生成逻辑
-        // 目前只是模拟
-        setTimeout(() => {
+        try {
+            progress.value = 40;
+            const result = await layoutWordCloud(analyzedWords.value, config);
+            progress.value = 90;
+            elements.value = result.elements;
+            lastRenderMs.value = result.durationMs;
+            progress.value = 100;
+
+            if (result.placedCount === 0) {
+                alert("未能放置任何词语，请缩小词数或调整画布尺寸");
+            } else if (result.placedCount < result.totalCount) {
+                console.warn(`已放置 ${result.placedCount}/${result.totalCount} 个词语`);
+            }
+        } catch (error) {
+            console.error("词云生成失败:", error);
+            alert(error instanceof Error ? error.message : "词云生成失败，请重试");
+        } finally {
             isGenerating.value = false;
-            console.log("词云生成完成");
-        }, 1000);
+        }
     }
 
-    // 导出词云
     function exportWordCloud(format: "png" | "svg") {
-        console.log("导出词云:", format);
-        // 这里应该调用 WordCloudCanvas 的导出方法
+        canvasRef.value?.exportWordCloud({
+            format,
+            scale: 2,
+            transparent: false,
+            quality: 0.92,
+        });
     }
 </script>
 
 <style>
-    /* 全局样式已通过 UnoCSS 处理 */
+    .app {
+        height: 100vh;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+
+    .app-content {
+        display: flex;
+        height: 100%;
+    }
+
+    .control-panel {
+        flex-shrink: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .canvas-container {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        padding: 1rem;
+        overflow: auto;
+    }
 </style>

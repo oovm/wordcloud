@@ -303,7 +303,7 @@
 <script setup lang="ts">
     import { Icon } from "@iconify/vue";
     import { computed, reactive, ref, watch } from "vue";
-    import type { WordCloudConfig, WordCloudElement } from "../types";
+    import type { WordCloudConfig } from "../types";
     import HelpModal from "./HelpModal.vue";
     import TextAnalyzer from "./TextAnalyzer.vue";
 
@@ -313,6 +313,7 @@
 
     interface Emits {
         "update:config": [config: WordCloudConfig];
+        "words-analyzed": [words: Array<{ text: string; frequency: number }>];
         generate: [];
         export: [format: "png" | "svg"];
     }
@@ -325,7 +326,7 @@
 
     // 组件状态
     const showHelp = ref(false);
-    const analyzedWords = ref<WordCloudElement[]>([]);
+    const analyzedWords = ref<Array<{ text: string; frequency: number }>>([]);
     const rotationAnglesInput = ref("");
 
     // 文件输入引用
@@ -350,8 +351,9 @@
     );
 
     // 处理文本分析结果
-    function handleWordsAnalyzed(words: WordCloudElement[]) {
+    function handleWordsAnalyzed(words: Array<{ text: string; frequency: number }>) {
         analyzedWords.value = words;
+        emit("words-analyzed", words);
     }
 
     // 更新旋转角度集合
