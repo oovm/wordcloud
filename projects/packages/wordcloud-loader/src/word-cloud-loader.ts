@@ -4,16 +4,20 @@ import { type JsonLoadOptions, loadFromJson } from "./load-json";
 import { loadFromText } from "./load-text";
 import { defaultTokenizer, type Tokenizer } from "./tokenizer";
 
+export type CsvParser = (csvText: string, options?: CsvLoadOptions) => WordFrequency[];
+
 /** Load `WordFrequency[]` from CSV, JSON, or plain text. */
 export class WordCloudLoader {
-    private readonly tokenizer: Tokenizer;
+    private tokenizer: Tokenizer;
+    private csvParser: CsvParser;
 
-    constructor(tokenizer: Tokenizer = defaultTokenizer) {
+    constructor(tokenizer: Tokenizer = defaultTokenizer, csvParser: CsvParser = loadFromCsv) {
         this.tokenizer = tokenizer;
+        this.csvParser = csvParser;
     }
 
     fromCsv(csvText: string, options?: CsvLoadOptions): WordFrequency[] {
-        return loadFromCsv(csvText, options);
+        return this.csvParser(csvText, options);
     }
 
     fromJson(jsonText: string, options?: JsonLoadOptions): WordFrequency[] {
@@ -25,7 +29,19 @@ export class WordCloudLoader {
         return loadFromText(text, options, this.tokenizer);
     }
 
+    setTokenizer(tokenizer: Tokenizer): void {
+        this.tokenizer = tokenizer;
+    }
+
+    setCsvParser(parser: CsvParser): void {
+        this.csvParser = parser;
+    }
+
     getTokenizer(): Tokenizer {
         return this.tokenizer;
+    }
+
+    getCsvParser(): CsvParser {
+        return this.csvParser;
     }
 }

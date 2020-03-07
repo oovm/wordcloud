@@ -1,7 +1,7 @@
 {
     "name": "@doki-land/wordcloud-loader",
     "version": "0.1.0",
-    "description": "Load word frequencies from CSV, JSON, or plain text via tokenizers",
+    "description": "Load word frequencies from CSV, JSON, or plain text via pluggable tokenizers",
     "type": "module",
     "sideEffects": false,
     "license": "MIT",
@@ -9,6 +9,18 @@
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
+        },
+        "./nodejieba": {
+            "types": "./dist/adapters/nodejieba.d.ts",
+            "import": "./dist/adapters/nodejieba.js"
+        },
+        "./natural": {
+            "types": "./dist/adapters/natural.d.ts",
+            "import": "./dist/adapters/natural.js"
+        },
+        "./papaparse": {
+            "types": "./dist/adapters/papaparse.d.ts",
+            "import": "./dist/adapters/papaparse.js"
         }
     },
     "files": ["dist"],
@@ -19,9 +31,19 @@
         "type-check": "tsc --noEmit",
         "test": "vitest run"
     },
-    "keywords": ["wordcloud", "loader", "csv", "json", "tokenizer"],
+    "keywords": ["wordcloud", "loader", "csv", "json", "tokenizer", "nodejieba", "natural", "papaparse"],
     "dependencies": {
         "@doki-land/wordcloud-core": "workspace:*"
+    },
+    "peerDependencies": {
+        "natural": ">=6.0.0",
+        "nodejieba": ">=2.6.0",
+        "papaparse": ">=5.4.0"
+    },
+    "peerDependenciesMeta": {
+        "natural": { "optional": true },
+        "nodejieba": { "optional": true },
+        "papaparse": { "optional": true }
     },
     "devDependencies": {
         "typescript": "^5.0.0",
