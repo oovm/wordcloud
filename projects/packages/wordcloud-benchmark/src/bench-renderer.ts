@@ -1,6 +1,7 @@
-import { JSDOM } from "jsdom";
 import type { RenderBackendId, RenderConfig, TextElement, Theme } from "@doki-land/wordcloud-core";
 import { WordCloudRenderer } from "@doki-land/wordcloud-renderer";
+import { installDom } from "./lib/install-dom";
+import { isDirectRun } from "./lib/is-direct-run";
 import { bench, printResults, type BenchResult } from "./lib/timing";
 
 const THEME: Theme = {
@@ -9,41 +10,34 @@ const THEME: Theme = {
         { r: 51, g: 122, b: 183 },
         { r: 92, g: 184, b: 92 },
         { r: 240, g: 173, b: 78 },
+        { r: 217, g: 83, b: 79 },
     ],
     backgroundColor: { r: 255, g: 255, b: 255 },
     fontFamilies: ["Arial"],
-    fontWeights: ["normal"],
+    fontWeights: ["normal", "bold"],
 };
 
+const RENDER_BACKENDS: RenderBackendId[] = ["cpu-canvas", "cpu-svg", "webgpu"];
+const ELEMENT_COUNTS = [50, 100, 200] as const;
+
 function sampleElements(count: number): TextElement[] {
+    const rotations = [0, 45, -45, 90];
+
     return Array.from({ length: count }, (_, index) => ({
         id: `text-${index}`,
         type: "text",
         text: `word-${index}`,
-        x: 40 + (index % 10) * 70,
-        y: 40 + Math.floor(index / 10) * 50,
+        x: 40 + (index % 12) * 60,
+        y: 40 + Math.floor(index / 12) * 44,
         width: 64,
         height: 20,
-        rotation: 0,
-        frequency: 1,
-        fontSize: 16,
+        rotation: rotations[index % rotations.length],
+        frequency: 1 - index / count,
+        fontSize: 12 + (index % 5) * 4,
         fontFamily: "Arial",
-        fontWeight: "normal",
+        fontWeight: index % 3 === 0 ? "bold" : "normal",
         canColor: true,
     }));
-}
-
-function installDom(): void {
-    const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-    const { window } = dom;
-
-    globalThis.window = window as Window & typeof globalThis;
-    globalThis.document = window.document;
-    globalThis.HTMLCanvasElement = window.HTMLCanvasElement;
-    globalThis.SVGElement = window.SVGElement;
-    globalThis.Image = window.Image;
-    globalThis.XMLSerializer = window.XMLSerializer;
-    globalThis.btoa = window.btoa.bind(window);
 }
 
 function createSurface(backend: RenderBackendId): HTMLCanvasElement | SVGElement {
@@ -60,40 +54,61 @@ function createSurface(backend: RenderBackendId): HTMLCanvasElement | SVGElement
     return canvas;
 }
 
-function benchBackend(backend: RenderBackendId, elementCount: number, iterations: number): BenchResult {
-    const surface = createSurface(backend);
+function tryBenchBackend(backend: RenderBackendId, elementCount: number, iterations: number): BenchResult | null {
+    try {
+        const surface = createSurface(backend);
+        const config: RenderConfig = {
+            theme: THEME,
+            backend,
+            progressive: false,
+            animationSpeed: 100,
+        };
 
-    const config: RenderConfig = {
-        theme: THEME,
-        backend,
-        progressive: false,
-        animationSpeed: 100,
-    };
-
-    const elements = sampleElements(elementCount);
-    const renderer = new WordCloudRenderer(surface, config);
-    renderer.setElements(elements);
-
-    return bench(`renderer/${backend}/${elementCount}-elements`, iterations, () => {
-        renderer.reset();
+        const elements = sampleElements(elementCount);
+        const renderer = new WordCloudRenderer(surface, config);
         renderer.setElements(elements);
+
+        // Warm-up: allocate backend + first paint outside timed samples.
         renderer.render();
-    });
+
+        return bench(`renderer/${backend}/${elementCount}-elements`, iterations, () => {
+            renderer.reset();
+            renderer.setElements(elements);
+            renderer.render();
+        });
+    } catch (error) {
+        console.warn(
+            `renderer/${backend}/${elementCount}-elements skipped:`,
+            error instanceof Error ? error.message : error,
+        );
+        return null;
+    }
 }
 
 export function runRendererBenchmarks(iterations = 5): BenchResult[] {
-    installDom();
+    const canvasAvailable = installDom();
 
-    const results = [
-        benchBackend("cpu-canvas", 50, iterations),
-        benchBackend("cpu-canvas", 100, iterations),
-        benchBackend("cpu-svg", 50, iterations),
-    ];
+    const results: BenchResult[] = [];
+
+    for (const backend of RENDER_BACKENDS) {
+        if ((backend === "cpu-canvas" || backend === "webgpu") && !canvasAvailable) {
+            console.warn(`renderer/${backend} skipped: canvas native module not built`);
+            continue;
+        }
+
+        for (const elementCount of ELEMENT_COUNTS) {
+            const result = tryBenchBackend(backend, elementCount, iterations);
+            if (result) {
+                results.push(result);
+            }
+        }
+    }
 
     printResults(results);
     return results;
 }
 
-if (import.meta.url === new URL(process.argv[1], "file:").href) {
-    runRendererBenchmarks();
+if (isDirectRun(import.meta.url)) {
+    const iterations = Number.parseInt(process.env.BENCH_ITERATIONS ?? "5", 10);
+    runRendererBenchmarks(iterations);
 }

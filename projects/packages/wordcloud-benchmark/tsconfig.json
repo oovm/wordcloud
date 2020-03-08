@@ -2,11 +2,19 @@
     "extends": "../../../tsconfig.base.json",
     "compilerOptions": {
         "lib": ["ES2020", "DOM"],
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "noEmit": true,
         "allowImportingTsExtensions": false,
         "noUncheckedIndexedAccess": false,
-        "strictNullChecks": false
+        "strictNullChecks": false,
+        "baseUrl": ".",
+        "paths": {
+            "@doki-land/wordcloud-core": ["../wordcloud-core/src/index.ts"],
+            "@doki-land/wordcloud-loader": ["../wordcloud-loader/src/index.ts"],
+            "@doki-land/wordcloud-loader/*": ["../wordcloud-loader/src/*"],
+            "@doki-land/wordcloud-layout": ["../wordcloud-layout/src/index.ts"],
+            "@doki-land/wordcloud-renderer": ["../wordcloud-renderer/src/index.ts"]
+        }
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

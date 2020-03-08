@@ -5,15 +5,20 @@
     "description": "Local benchmarks for wordcloud layout and renderer (not published)",
     "type": "module",
     "scripts": {
-        "bench": "tsx src/run.ts",
-        "bench:layout": "tsx src/bench-layout.ts",
-        "bench:renderer": "tsx src/bench-renderer.ts",
+        "bench": "tsx --tsconfig tsconfig.json src/run.ts",
+        "bench:tokenizer": "tsx --tsconfig tsconfig.json src/bench-tokenizer.ts",
+        "bench:layout": "tsx --tsconfig tsconfig.json src/bench-layout.ts",
+        "bench:renderer": "tsx --tsconfig tsconfig.json src/bench-renderer.ts",
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
         "@doki-land/wordcloud-core": "workspace:*",
         "@doki-land/wordcloud-layout": "workspace:*",
-        "@doki-land/wordcloud-renderer": "workspace:*"
+        "@doki-land/wordcloud-loader": "workspace:*",
+        "@doki-land/wordcloud-renderer": "workspace:*",
+        "canvas": "^2.11.0",
+        "natural": "^6.12.0",
+        "nodejieba": "^2.6.0"
     },
     "devDependencies": {
         "jsdom": "^23.0.0",
