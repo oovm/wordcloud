@@ -28,6 +28,28 @@
             <div v-if="wordFrequencies.length > 0" class="status-info">
                 <p class="text-sm text-gray-600">已分析文本，共 {{ wordFrequencies.length }} 个词汇</p>
             </div>
+
+            <div class="engine-picker mt-4 space-y-3">
+                <div>
+                    <label class="label">分词引擎</label>
+                    <select v-model="tokenizerEngine" class="input w-full" @change="handleEngineChange">
+                        <option v-for="engine in TOKENIZER_ENGINES" :key="engine.id" :value="engine.id">
+                            {{ engine.label }}
+                        </option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">{{ activeTokenizerMeta?.description }}</p>
+                </div>
+                <div>
+                    <label class="label">CSV 解析器</label>
+                    <select v-model="csvEngine" class="input w-full" @change="handleEngineChange">
+                        <option v-for="engine in CSV_PARSER_ENGINES" :key="engine.id" :value="engine.id">
+                            {{ engine.label }}
+                        </option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">{{ activeCsvMeta?.description }}</p>
+                </div>
+                <p v-if="engineError" class="text-xs text-amber-700">{{ engineError }}</p>
+            </div>
         </div>
 
         <!-- 文本输入弹窗 -->
@@ -247,9 +269,18 @@
 </template>
 
 <script setup lang="ts">
-    import { WordCloudLoader } from "@doki-land/wordcloud-loader";
     import { Icon } from "@iconify/vue";
-    import { computed, ref } from "vue";
+    import { computed, ref, watch } from "vue";
+    import {
+        CSV_PARSER_ENGINES,
+        TOKENIZER_ENGINES,
+        createLoaderRuntime,
+        isTokenizerAvailableInBrowser,
+        type CsvParserEngineId,
+        type LoaderRuntimeOptions,
+        type TokenizerEngineId,
+    } from "../lib/loader-runtime";
+    import type { WordCloudLoader } from "@doki-land/wordcloud-loader";
 
     interface WordFrequencyItem {
         text: string;
@@ -268,7 +299,48 @@
         "words-analyzed": [words: Array<{ text: string; frequency: number }>];
     }>();
 
-    const loader = new WordCloudLoader();
+    const tokenizerEngine = ref<TokenizerEngineId>("builtin");
+    const csvEngine = ref<CsvParserEngineId>("builtin");
+    const loader = ref<WordCloudLoader | null>(null);
+    const engineError = ref<string>();
+
+    const activeTokenizerMeta = computed(() =>
+        TOKENIZER_ENGINES.find((engine) => engine.id === tokenizerEngine.value),
+    );
+    const activeCsvMeta = computed(() => CSV_PARSER_ENGINES.find((engine) => engine.id === csvEngine.value));
+
+    const runtimeOptions = computed<LoaderRuntimeOptions>(() => ({
+        tokenizer: tokenizerEngine.value,
+        csv: csvEngine.value,
+    }));
+
+    async function refreshLoader() {
+        engineError.value = undefined;
+
+        if (!isTokenizerAvailableInBrowser(tokenizerEngine.value) && typeof window !== "undefined") {
+            engineError.value = "nodejieba 依赖 Node 原生模块，浏览器环境将尝试动态加载，失败时请改用内置分词。";
+        }
+
+        try {
+            loader.value = await createLoaderRuntime(runtimeOptions.value);
+        } catch (error) {
+            console.error("加载分词引擎失败:", error);
+            engineError.value = error instanceof Error ? error.message : "加载分词引擎失败";
+            loader.value = await createLoaderRuntime({ tokenizer: "builtin", csv: csvEngine.value });
+        }
+    }
+
+    async function handleEngineChange() {
+        await refreshLoader();
+    }
+
+    watch(
+        runtimeOptions,
+        () => {
+            void refreshLoader();
+        },
+        { immediate: true },
+    );
 
     const showTextInput = ref(false);
     const showFileUpload = ref(false);
@@ -355,9 +427,9 @@
     }
 
     function analyzeText() {
-        if (!inputText.value.trim()) return;
+        if (!inputText.value.trim() || !loader.value) return;
 
-        const frequencies = loader.fromText(inputText.value, {
+        const frequencies = loader.value.fromText(inputText.value, {
             customStopWords: stopWords.value,
             language: detectLanguage(inputText.value),
             minLength: 1,
@@ -391,16 +463,16 @@
     }
 
     async function analyzeFile() {
-        if (!uploadedFile.value) return;
+        if (!uploadedFile.value || !loader.value) return;
 
         try {
             const text = await readFileAsText(uploadedFile.value);
             const fileName = uploadedFile.value.name.toLowerCase();
 
             if (fileName.endsWith(".csv")) {
-                wordFrequencies.value = toWordFrequencyItems(loader.fromCsv(text));
+                wordFrequencies.value = toWordFrequencyItems(loader.value.fromCsv(text));
             } else if (fileName.endsWith(".json")) {
-                wordFrequencies.value = toWordFrequencyItems(loader.fromJson(text));
+                wordFrequencies.value = toWordFrequencyItems(loader.value.fromJson(text));
             } else {
                 inputText.value = text;
                 analyzeText();
@@ -588,5 +660,9 @@
 
     .status-info {
         @apply p-3 bg-blue-50 rounded-md;
+    }
+
+    .engine-picker {
+        @apply p-3 bg-gray-50 rounded-md border border-gray-100;
     }
 </style>

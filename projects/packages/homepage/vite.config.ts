@@ -28,6 +28,9 @@ export default defineConfig({
             "@doki-land/wordcloud-element": resolve(__dirname, "../wordcloud-element/src"),
         },
     },
+    optimizeDeps: {
+        exclude: ["nodejieba"],
+    },
     test: {
         globals: true,
         environment: "jsdom",
