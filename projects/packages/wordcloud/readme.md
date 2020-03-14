@@ -12,19 +12,8 @@
 | `@doki-land/wordcloud-renderer` | CPU canvas/SVG + WebGPU 后端 |
 | `@doki-land/wordcloud` | **门面**：生成器、主题、分析（`sideEffects: false`） |
 | `@doki-land/wordcloud-element` | `<word-cloud>` 自定义元素（`sideEffects: true`） |
-| `@doki-land/wordcloud/wasm` | 可选 **Rust/WASI**（整块 wasm，需显式 import） |
 
-默认请使用 `LayoutEngine` 等 TS API。需要与 Rust `wordcloud` crate 语义对齐时，单独从 `/wasm` 子路径加载：
-
-```typescript
-import { layoutWordsWasm } from "@doki-land/wordcloud/wasm";
-```
-
-WASM 对照测试（需先 `npm run build:all`）：
-
-```bash
-npm run test:parity
-```
+默认请使用 `LayoutEngine`、`WordCloudRenderer` 等 TypeScript API。
 
 ## 特性
 
@@ -185,7 +174,7 @@ const wordFrequencies = loader.fromText(text, {
   customStopWords: ["自定义", "停用词"],
 });
 
-// 注入自定义分词器（如 nodejieba / wasm tokenize）
+// 注入自定义分词器（如 nodejieba）
 const customLoader = new WordCloudLoader(myTokenizer);
 const renderer = generator.generateFromWordFrequencies(customLoader.fromText(text), canvas);
 ```

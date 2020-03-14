@@ -9,23 +9,15 @@
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
-        },
-        "./wasm": {
-            "types": "./dist/wasm.d.ts",
-            "import": "./dist/wasm.js"
         }
     },
     "files": [
         "dist"
     ],
     "scripts": {
-        "build:wasi": "cargo component build --release --manifest-path ../../crates/wordcloud-wasi/Cargo.toml",
-        "build:jco": "jco transpile ../../crates/wordcloud-wasi/target/wasm32-wasip2/release/wordcloud_wasi.wasm -o lib --name wordcloud",
         "build": "tsc",
-        "build:all": "npm run build:wasi && npm run build:jco && tsc",
         "dev": "tsc --watch",
         "test": "vitest",
-        "test:parity": "vitest run tests/wasm-parity.test.ts",
         "test:ui": "vitest --ui",
         "test:coverage": "vitest --coverage",
         "clean": "rm -rf dist",
@@ -42,7 +34,6 @@
         "svg"
     ],
     "devDependencies": {
-        "@bytecodealliance/jco": "^1.35.0",
         "@types/node": "^20.0.0",
         "@vitest/coverage-v8": "^1.0.0",
         "@vitest/ui": "^1.0.0",

@@ -10,8 +10,6 @@ projects/
   crates/
     wordcloud/           # Rust crate (`wordcloud` on crates.io)
     wordcloud-types/     # shared Rust domain types
-    wordcloud-wasi/      # WASI component (layout + analyze)
-    wordcloud-wgpu/      # wgpu compute layout (GPU)
     quadtree-quantify/
     pixel-volume-tree/
   packages/
@@ -31,7 +29,6 @@ projects/
 pnpm install
 pnpm build:rs    # Rust workspace
 pnpm build:ts    # TypeScript library
-cd projects/packages/wordcloud && npm run build:all  # WASM + TypeScript
 pnpm dev:web     # Homepage dev server
 pnpm fmt:js      # Biome format (JS/JSON, 4 spaces)
 pnpm fmt         # rustfmt + Biome
