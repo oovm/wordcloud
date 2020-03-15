@@ -1,0 +1,57 @@
+name: check-typescript
+
+on:
+  push:
+    branches: [dev, master]
+    paths:
+      - "projects/packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.base.json"
+      - ".github/workflows/check-typescript.yml"
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - "projects/packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.base.json"
+      - ".github/workflows/check-typescript.yml"
+
+jobs:
+  check:
+    name: build · test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared types
+        run: pnpm --filter @doki-land/wordcloud-core build
+
+      - name: Test layout package
+        run: pnpm --filter @doki-land/wordcloud-layout test
+
+      - name: Test loader package
+        run: pnpm --filter @doki-land/wordcloud-loader exec vitest run
+
+      - name: Test facade package
+        run: pnpm --filter @doki-land/wordcloud test run

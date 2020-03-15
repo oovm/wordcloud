@@ -1,0 +1,43 @@
+name: check-rust
+
+on:
+  push:
+    branches: [dev, master]
+    paths:
+      - "projects/crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/check-rust.yml"
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - "projects/crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/check-rust.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: fmt · test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Test
+        run: cargo test -p wordcloud-types -p wordcloud
