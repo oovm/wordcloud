@@ -1,71 +1,44 @@
 # @doki-land/wordcloud-loader
 
-Load `WordFrequency[]` from structured data or plain text with **pluggable tokenizers and CSV parsers**.
+Load `WordFrequency[]` from CSV, JSON, or plain text with **injectable tokenizers and CSV parsers**.
 
-| Source | API | Engines |
-|--------|-----|---------|
-| CSV | `loadFromCsv` / `loader.fromCsv` | built-in columns, **Papa Parse** headers |
-| JSON | `loadFromJson` / `loader.fromJson` | built-in |
-| TXT | `loadFromText` + injectable `Tokenizer` | built-in, **nodejieba**, **natural** |
+| Source | API |
+|--------|-----|
+| CSV | `loadFromCsv` / `loader.fromCsv` |
+| JSON | `loadFromJson` / `loader.fromJson` |
+| TXT | `loadFromText` + injectable `Tokenizer` |
 
 ## Quick start
 
 ```ts
-import { WordCloudLoader, defaultTokenizer, loadFromCsv } from "@doki-land/wordcloud-loader";
+import { WordCloudLoader, loadFromCsv, loadFromText } from "@doki-land/wordcloud-loader";
 
 const fromCsv = loadFromCsv("word,frequency\nrust,5\nwgpu,3");
 const fromTxt = new WordCloudLoader().fromText("hello world hello");
 ```
 
-## Pluggable tokenizers
+## Injectable tokenizers
 
-`WordCloudLoader` accepts any `Tokenizer` function. Optional adapters ship as factories — **bring your own npm package**:
-
-```ts
-import {
-    WordCloudLoader,
-    createNodejiebaTokenizer,
-    createNaturalTokenizer,
-} from "@doki-land/wordcloud-loader";
-import nodejieba from "nodejieba";
-import natural from "natural";
-
-const jiebaLoader = new WordCloudLoader(createNodejiebaTokenizer(nodejieba));
-const naturalLoader = new WordCloudLoader(createNaturalTokenizer(natural));
-
-jiebaLoader.fromText("词云可视化");
-naturalLoader.fromText("hello world hello");
-```
-
-Subpath imports are also available:
+`WordCloudLoader` accepts any `Tokenizer` function. Third-party engines (`nodejieba`, `natural`, `papaparse`) belong in the app layer — wire them yourself:
 
 ```ts
-import { createNodejiebaTokenizer } from "@doki-land/wordcloud-loader/nodejieba";
+import { WordCloudLoader, type Tokenizer } from "@doki-land/wordcloud-loader";
+
+const myTokenizer: Tokenizer = (text, options) => {
+    // call nodejieba / natural / custom logic
+    return [{ word: text.trim(), frequency: 1 }];
+};
+
+const loader = new WordCloudLoader(myTokenizer);
 ```
 
-## Pluggable CSV parsers
+Shared helpers for custom adapters: `detectLanguage`, `splitBuiltinTokens`, `countWordFrequencies`.
+
+## Injectable CSV parsers
 
 ```ts
-import Papa from "papaparse";
-import { WordCloudLoader, loadFromCsv, loadFromCsvWithPapaparse } from "@doki-land/wordcloud-loader";
+import { WordCloudLoader, loadFromCsv, type CsvParser } from "@doki-land/wordcloud-loader";
 
-const loader = new WordCloudLoader(
-    undefined,
-    (csv) => loadFromCsvWithPapaparse(csv, Papa),
-);
-
-loader.fromCsv("word,frequency\nhello,3");
+const loader = new WordCloudLoader(undefined, myCsvParser);
+loader.setCsvParser((csv) => loadFromCsv(csv));
 ```
-
-Or swap at runtime:
-
-```ts
-loader.setTokenizer(createNaturalTokenizer(natural));
-loader.setCsvParser((csv) => loadFromCsvWithPapaparse(csv, Papa));
-```
-
-## Engine registry
-
-Use `TOKENIZER_ENGINES` / `CSV_PARSER_ENGINES` to build UI selectors (labels, runtime hints).
-
-Optional peer dependencies: `nodejieba`, `natural`, `papaparse`.

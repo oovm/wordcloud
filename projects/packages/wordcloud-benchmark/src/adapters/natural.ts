@@ -1,8 +1,11 @@
 import type { TokenizeOptions } from "@doki-land/wordcloud-core";
-import type { Tokenizer } from "../tokenizer";
-import { countWordFrequencies, detectLanguage, splitBuiltinTokens } from "../tokenize-utils";
+import {
+    countWordFrequencies,
+    detectLanguage,
+    splitBuiltinTokens,
+    type Tokenizer,
+} from "@doki-land/wordcloud-loader";
 
-/** Minimal `natural` WordTokenizer surface. */
 export interface NaturalLike {
     WordTokenizer: new () => {
         tokenize(text: string): string[] | undefined;
@@ -17,10 +20,6 @@ function resolveNaturalModule(naturalModule: NaturalLike | { default: NaturalLik
     return naturalModule;
 }
 
-/**
- * English-oriented tokenizer adapter using `natural.WordTokenizer`.
- * CJK segments still use built-in per-character splitting.
- */
 export function createNaturalTokenizer(naturalModule: NaturalLike | { default: NaturalLike }): Tokenizer {
     const natural = resolveNaturalModule(naturalModule);
     const wordTokenizer = new natural.WordTokenizer();

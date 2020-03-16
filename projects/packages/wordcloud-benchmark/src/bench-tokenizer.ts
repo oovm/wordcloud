@@ -1,10 +1,8 @@
-import {
-    createNaturalTokenizer,
-    createNodejiebaTokenizer,
-    defaultTokenizer,
-    type Tokenizer,
-    type TokenizerEngineId,
-} from "@doki-land/wordcloud-loader";
+import { defaultTokenizer, type Tokenizer } from "@doki-land/wordcloud-loader";
+import { createNaturalTokenizer } from "./adapters/natural";
+import { createNodejiebaTokenizer } from "./adapters/nodejieba";
+
+type TokenizerEngineId = "builtin" | "natural" | "nodejieba";
 import { buildCorpus, type TextCorpusId } from "./lib/sample-text";
 import { isDirectRun } from "./lib/is-direct-run";
 import { bench, printResults, type BenchResult } from "./lib/timing";

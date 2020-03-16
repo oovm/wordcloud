@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-    createNaturalTokenizer,
-    createNodejiebaTokenizer,
-    loadFromCsv,
-    loadFromCsvWithPapaparse,
-    loadFromJson,
-    loadFromText,
-    WordCloudLoader,
-} from "../src/index";
+import { loadFromCsv, loadFromJson, loadFromText, WordCloudLoader } from "../src/index";
 
 describe("WordCloudLoader", () => {
     const loader = new WordCloudLoader();
@@ -53,62 +45,7 @@ describe("WordCloudLoader", () => {
     });
 
     it("supports swappable csv parser", () => {
-        const loader = new WordCloudLoader(undefined, (csv) =>
-            loadFromCsvWithPapaparse(csv, {
-                parse: (input) => ({
-                    data: [{ word: "papaparse", frequency: 7 }],
-                    errors: [],
-                }),
-            }),
-        );
-
-        expect(loader.fromCsv("ignored")).toEqual([{ word: "papaparse", frequency: 7 }]);
-    });
-});
-
-describe("tokenizer adapters", () => {
-    it("nodejieba adapter segments chinese", () => {
-        const tokenizer = createNodejiebaTokenizer({
-            cut: (text) => text.split(/\s+/).filter(Boolean),
-        });
-        const words = tokenizer("词云 词云 可视化", { minLength: 1 });
-        expect(words).toEqual([
-            { word: "词云", frequency: 2 },
-            { word: "可视化", frequency: 1 },
-        ]);
-    });
-
-    it("natural adapter tokenizes english", () => {
-        const tokenizer = createNaturalTokenizer({
-            WordTokenizer: class {
-                tokenize(text: string) {
-                    return text.split(/\s+/).filter(Boolean);
-                }
-            },
-        });
-
-        const words = tokenizer("hello world hello", { minLength: 2, language: "english" });
-        expect(words).toEqual([
-            { word: "hello", frequency: 2 },
-            { word: "world", frequency: 1 },
-        ]);
-    });
-
-    it("natural adapter accepts default export shape", () => {
-        const tokenizer = createNaturalTokenizer({
-            default: {
-                WordTokenizer: class {
-                    tokenize(text: string) {
-                        return text.split(/\s+/).filter(Boolean);
-                    }
-                },
-            },
-        });
-
-        const words = tokenizer("alpha beta alpha", { minLength: 2, language: "english" });
-        expect(words).toEqual([
-            { word: "alpha", frequency: 2 },
-            { word: "beta", frequency: 1 },
-        ]);
+        const loader = new WordCloudLoader(undefined, () => [{ word: "custom", frequency: 7 }]);
+        expect(loader.fromCsv("ignored")).toEqual([{ word: "custom", frequency: 7 }]);
     });
 });

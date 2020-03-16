@@ -9,11 +9,8 @@ export interface PapaparseLike {
 }
 
 export interface PapaparseCsvOptions {
-    /** Header column name or zero-based index. Default tries `word` then `text`. */
     wordColumn?: number | string;
-    /** Header column name or zero-based index. Default tries `frequency` then `count`. */
     frequencyColumn?: number | string;
-    /** Skip the first row when Papa Parse uses `header: true`. Default `true`. */
     skipHeader?: boolean;
 }
 
@@ -55,9 +52,7 @@ function readFrequency(row: Record<string, unknown>, frequencyColumn?: number | 
     return undefined;
 }
 
-/**
- * CSV loader backed by Papa Parse — supports named header columns.
- */
+/** CSV loader backed by Papa Parse — supports named header columns. */
 export function loadFromCsvWithPapaparse(
     csvText: string,
     papa: PapaparseLike,

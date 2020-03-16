@@ -1,7 +1,5 @@
-/** Built-in tokenizer — zero native deps, browser-safe. */
 export type TokenizerEngineId = "builtin" | "nodejieba" | "natural";
 
-/** Built-in line split CSV parser vs Papa Parse header-aware parser. */
 export type CsvParserEngineId = "builtin" | "papaparse";
 
 export type LoaderRuntime = "browser" | "node" | "universal";

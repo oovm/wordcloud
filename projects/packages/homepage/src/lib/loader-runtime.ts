@@ -1,15 +1,13 @@
+import { defaultTokenizer, loadFromCsv, WordCloudLoader } from "@doki-land/wordcloud-loader";
+import { createNaturalTokenizer } from "./adapters/natural";
+import { createNodejiebaTokenizer } from "./adapters/nodejieba";
+import { loadFromCsvWithPapaparse } from "./adapters/papaparse";
 import {
-    createNaturalTokenizer,
-    createNodejiebaTokenizer,
     CSV_PARSER_ENGINES,
-    defaultTokenizer,
-    loadFromCsv,
-    loadFromCsvWithPapaparse,
     TOKENIZER_ENGINES,
-    WordCloudLoader,
     type CsvParserEngineId,
     type TokenizerEngineId,
-} from "@doki-land/wordcloud-loader";
+} from "./loader-registry";
 
 export { CSV_PARSER_ENGINES, TOKENIZER_ENGINES };
 export type { CsvParserEngineId, TokenizerEngineId };
