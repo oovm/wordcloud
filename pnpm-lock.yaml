@@ -217,15 +217,6 @@ importers:
       '@doki-land/wordcloud-core':
         specifier: workspace:*
         version: link:../wordcloud-core
-      natural:
-        specifier: '>=6.0.0'
-        version: 6.12.0
-      nodejieba:
-        specifier: '>=2.6.0'
-        version: 2.6.0
-      papaparse:
-        specifier: '>=5.4.0'
-        version: 5.7.0
     devDependencies:
       typescript:
         specifier: ^5.0.0
