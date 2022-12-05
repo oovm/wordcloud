@@ -1,0 +1,22 @@
+[package]
+name = "wordcloud-core"
+version = "0.1.0"
+authors = ["Aster <192607617@qq.com>"]
+description = "..."
+repository = "https://github.com/oovm/wordcloud-rs"
+readme = "Readme.md"
+license = "MPL-2.0"
+edition = "2021"
+
+[dependencies]
+image = "0.24.5"
+pix = "0.13.2"
+rand = "0.8.5"
+font-kit = "0.11.0"
+
+[dev-dependencies]
+
+[features]
+default = []
+web = []
+gpu = []
