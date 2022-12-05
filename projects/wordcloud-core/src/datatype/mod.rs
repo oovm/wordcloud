@@ -1,1 +1,1 @@
-mod quad_tree;
+pub mod quad_tree;

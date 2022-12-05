@@ -1,19 +1,14 @@
 // mod errors;
 
-use palette::rgb::channels::Rgba;
+pub use self::{
+    datatype::quad_tree::WordCloudTree,
+    task::{WordCloudTask, WordCloudTaskKind},
+};
 
 mod datatype;
 mod fonts;
+mod task;
 
 pub struct WordCloud {}
 
 pub struct WordCloudWriter {}
-
-pub struct WordCloudTask {
-    kind: WordCloudTaskKind,
-}
-
-pub enum WordCloudTaskKind {
-    Text(String, Option<Rgba>),
-    Image(String, usize),
-}
