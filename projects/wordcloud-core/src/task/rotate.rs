@@ -28,6 +28,9 @@ impl WordCloudItem {
             WordCloudItemKind::Text { .. } => {
                 todo!()
             }
+            WordCloudItemKind::TextColored { .. } => {
+                todo!()
+            }
             WordCloudItemKind::ImageObject { image } => image_area(image, self.rotate, threshold)?,
             WordCloudItemKind::ImageFile { path } => {
                 let image = Reader::open(path)?.with_guessed_format()?.decode()?;

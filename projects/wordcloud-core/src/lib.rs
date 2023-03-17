@@ -2,7 +2,7 @@
 
 pub use self::{
     datatype::quad_tree::WordCloudTree,
-    task::{rotate::RotateMode, WordCloudItem, WordCloudItemKind},
+    task::{kind::WordCloudItemKind, rotate::RotateMode, WordCloudItem},
 };
 
 mod datatype;
