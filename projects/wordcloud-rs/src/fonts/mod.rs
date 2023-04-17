@@ -29,7 +29,6 @@ pub enum WordCloudSize {
 }
 
 pub struct WordCloud {
-    tokenizer: Tokenizer,
     background_color: Rgb<u8>,
     font: FontVec,
     min_font_size: f32,
@@ -46,7 +45,6 @@ impl Default for WordCloud {
         let font = FontVec::try_from_vec(include_bytes!("../../fonts/DroidSansMono.ttf").to_vec()).unwrap();
 
         WordCloud {
-            tokenizer: Tokenizer::default(),
             background_color: Rgb([0, 0, 0]),
             font,
             min_font_size: 4.0,
@@ -61,10 +59,6 @@ impl Default for WordCloud {
 }
 
 impl WordCloud {
-    pub fn with_tokenizer(mut self, value: Tokenizer) -> Self {
-        self.tokenizer = value;
-        self
-    }
     pub fn with_background_color(mut self, value: Rgb<u8>) -> Self {
         self.background_color = value;
         self
@@ -165,7 +159,7 @@ impl WordCloud {
         scale: f32,
         color_func: fn(&Word, &mut SmallRng) -> Rgb<u8>,
     ) -> RgbImage {
-        let words = self.tokenizer.get_normalized_word_frequencies(text);
+        let words = vec![("double", 10.0), ("plus", 20.0), ("good", 30.0), ("bad", 40.0), ("ugly", 50.0)];
 
         let (mut summed_area_table, mut gray_buffer) = match size {
             WordCloudSize::FromDimensions { width, height } => {
@@ -210,7 +204,7 @@ impl WordCloud {
         };
 
         'outer: for (word, freq) in &words {
-            if !self.tokenizer.repeat && self.relative_font_scaling != 0.0 {
+            if self.relative_font_scaling != 0.0 {
                 font_size *= self.relative_font_scaling * (freq / last_freq) + (1.0 - self.relative_font_scaling);
             }
 

@@ -1,7 +1,7 @@
 use image::Rgb;
 use rand::distributions::WeightedIndex;
 use rand::prelude::SmallRng;
-use rand::{Rng, SeedableRng};
+use rand::{ SeedableRng};
 use rand::distributions::Distribution;
 
 pub struct ColorPicker {
