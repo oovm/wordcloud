@@ -1,11 +1,11 @@
 // mod canvas;
 mod errors;
 mod fonts;
-mod colors;
+mod selects;
 
 pub use crate::errors::{WorldCloudResult, WordCloudError};
 
-pub use fonts::{WordCloud, WordCloudSize, Word, DEFAULT_EXCLUDE_WORDS_TEXT, tokenizer::Tokenizer};
+pub use fonts::{WordCloud, WordCloudSize, Word, };
 // mod layout;
 //
 // use crate::canvas::sample_rotate;

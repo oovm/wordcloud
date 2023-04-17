@@ -1,16 +1,6 @@
-use image::Rgb;
-use rand::distributions::WeightedIndex;
-use rand::prelude::SmallRng;
-use rand::{ SeedableRng};
-use rand::distributions::Distribution;
+use super::*;
 
-pub struct ColorPicker {
-    rng: SmallRng,
-    colors: Vec<Rgb<u8>>,
-    weights: WeightedIndex<u32>,
-}
-
-impl ColorPicker {
+impl TextPicker {
     pub fn new<I>(inputs: I, seed: &SmallRng) -> Self where I: Iterator<Item=(Rgb<u8>, u32)> {
         let rng = SmallRng::from_rng(seed.clone()).expect("Failed to create rng");
         let mut colors = vec![];
@@ -28,7 +18,7 @@ impl ColorPicker {
     }
 }
 
-impl Iterator for ColorPicker {
+impl Iterator for TextPicker {
     type Item = Rgb<u8>;
 
     fn next(&mut self) -> Option<Self::Item> {
