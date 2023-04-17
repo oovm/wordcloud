@@ -1,4 +1,4 @@
 #[derive(Debug, Clone)]
-pub enum Error {}
+pub enum WordCloudError {}
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type WorldCloudResult<T> = std::result::Result<T, WordCloudError>;
