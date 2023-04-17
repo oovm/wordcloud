@@ -10,7 +10,10 @@ license = "MPL-2.0"
 edition = "2018"
 
 [dependencies]
-image = "0.23"
+#ncollide2d = "0.33.0"
+#nalgebra = "0.32.2"
+
+image = "0.24.6"
 qrcode-generator = "4.0"
 
 [dev-dependencies]

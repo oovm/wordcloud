@@ -1,27 +1,27 @@
 use crate::{Canvas, Sprite};
 use image::GenericImageView;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub enum RenderDevice {
     Native = 0,
     Wasm = 1,
     GPU = 2,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub enum Layout {
     Rectangular = 0,
     Archimedes = 1,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub enum RescaleWeight {
     Linear = 0,
     Sqrt = 1,
     Log = 2,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone )]
 pub enum ColorFunction {
     Random = 0,
 }
