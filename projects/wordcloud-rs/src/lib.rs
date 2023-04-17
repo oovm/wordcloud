@@ -6,7 +6,7 @@ mod selectors;
 pub use crate::errors::{WorldCloudResult, WordCloudError};
 pub use crate::selectors::{TextPicker, ColorPicker};
 
-pub use fonts::{WordCloud, WordCloudSize, Word};
+pub use fonts::{WordCloudCanvas, WordCloudSize, Word};
 // mod layout;
 //
 // use crate::canvas::sample_rotate;
