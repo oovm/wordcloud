@@ -4,141 +4,199 @@
 
 use std::iter::from_generator;
 use shape_core::{Itertools, Point, Rectangle};
+// mod tree;
 
 pub type AABB = Rectangle<u32>;
-
-/// A pixel-level quadtree
-///
-/// Points out of bounds are considered filled
-pub struct PixelVolumeTree {
-    pub bound: AABB,
-    pub quad: PixelVolumeNode,
-}
 
 /// A node in the quadtree
 ///
 /// Same as Option<[Box<PixelVolumeNode>; 4]>,
 pub enum PixelVolumeNode {
     /// A single pixel, true if it is filled
-    EmptyArea,
-    FilledArea {
-        a: Box<PixelVolumeTree>,
-        b: Box<PixelVolumeTree>,
-        c: Box<PixelVolumeTree>,
-        d: Box<PixelVolumeTree>,
+    Pixel {
+        point: Point<u32>,
+        value: bool,
+    },
+    PureArea {
+        bound: AABB,
+        value: bool,
+    },
+    SplitArea {
+        bound: AABB,
+        areas: Vec<PixelVolumeNode>,
     },
 }
 
-impl PixelVolumeTree {
-    pub fn new(bound: AABB) -> Self {
-        Self {
-            bound,
-            quad: PixelVolumeNode::EmptyArea,
+impl PixelVolumeNode {
+    pub fn new(bound: AABB, value: bool) -> Self {
+        if bound.width() == 1 && bound.height() == 1 {
+            PixelVolumeNode::Pixel {
+                point: bound.origin(),
+                value,
+            }
+        } else {
+            PixelVolumeNode::PureArea { bound, value }
         }
     }
-    pub fn shift(&mut self, x: i32, y: i32) {
-        let sx = (self.bound.min.x as i32 + x) as u32;
-        let sy = (self.bound.min.y as i32 + y) as u32;
-        let ex = (self.bound.max.x as i32 + x) as u32;
-        let ey = (self.bound.max.y as i32 + y) as u32;
-        self.bound = AABB::from_min_max((sx, sy), (ex, ey));
-    }
-    pub fn split(&mut self) {
-        if let PixelVolumeNode::FilledArea { .. } = &self.quad {
-            return;
+    pub fn boundary(&self) -> AABB {
+        match self {
+            PixelVolumeNode::Pixel { point, .. } => AABB::new(point.x, point.y, 1, 1),
+            PixelVolumeNode::PureArea { bound, .. } => *bound,
+            PixelVolumeNode::SplitArea { bound, .. } => *bound,
         }
-        let Point { x: sx, y: sy } = self.bound.min;
-        let Point { x: ex, y: ey } = self.bound.max;
-        let (mx, my) = self.bound.center();
-        self.quad = PixelVolumeNode::FilledArea {
-            a: box PixelVolumeTree::new(AABB::from_min_max((sx, sy), (mx, my))),
-            b: box PixelVolumeTree::new(AABB::from_min_max((mx, sy), (ex, my))),
-            c: box PixelVolumeTree::new(AABB::from_min_max((sx, my), (mx, ey))),
-            d: box PixelVolumeTree::new(AABB::from_min_max((mx, my), (ex, ey))),
-        };
     }
-    pub fn get_children(&mut self) -> impl Iterator<Item=&mut PixelVolumeTree> {
+    pub fn get_areas(&self) -> impl Iterator<Item=&PixelVolumeNode> {
         from_generator(move || {
-            if let PixelVolumeNode::FilledArea { a, b, c, d } = &mut self.quad {
-                yield a;
-                yield b;
-                yield c;
-                yield d;
-            }
-        })
-    }
-    pub fn mut_children(&mut self) -> impl Iterator<Item=&mut PixelVolumeTree> {
-        from_generator(move || {
-            if let PixelVolumeNode::FilledArea { a, b, c, d } = &mut self.quad {
-                yield a;
-                yield b;
-                yield c;
-                yield d;
-            }
-        })
-    }
-    pub fn get_pixels(&self) -> impl Iterator<Item=Point<u32>> {
-        from_generator(move || {
-            for pixel in self.mut_children() {
-                if self.contains(pixel.x, pixel.y) {
-                    yield pixel;
+            if let PixelVolumeNode::SplitArea { areas, .. } = self {
+                for area in areas {
+                    yield area;
                 }
             }
         })
     }
-    /// Check if a point is filled
-    pub fn contains(&self, x: u32, y: u32) -> bool {
-        if !self.bound.contains(&Point::new(x, y)) {
-            return false;
-        }
-        match &self.quad {
-            PixelVolumeNode::EmptyArea => {
+    pub fn mut_areas(&mut self) -> impl Iterator<Item=&mut PixelVolumeNode> {
+        from_generator(move || {
+            if let PixelVolumeNode::SplitArea { areas, .. } = self {
+                for area in areas {
+                    yield area;
+                }
+            }
+        })
+    }
+    pub fn contains_pixel(&self, x: u32, y: u32) -> bool {
+        match self {
+            PixelVolumeNode::Pixel { point, value } => {
+                point.x == x && point.y == y && *value
+            }
+            PixelVolumeNode::PureArea { bound, value } => {
+                bound.contains(&Point::new(x, y)) && *value
+            }
+            PixelVolumeNode::SplitArea { bound, areas } => {
+                if bound.contains(&Point::new(x, y)) {
+                    for area in areas {
+                        if area.contains_pixel(x, y) {
+                            return true;
+                        }
+                    }
+                }
                 false
             }
-            PixelVolumeNode::FilledArea { a, b, c, d } => {
-                a.contains(x, y) || b.contains(x, y) || c.contains(x, y) || d.contains(x, y)
-            }
         }
     }
-    pub fn overlaps(&self, other: &PixelVolumeTree) -> bool {
-        if !self.bound.overlaps(&other.bound) {
-            return false;
-        }
-        match &self.quad {
-            PixelVolumeNode::EmptyArea => {
+    pub fn contains_box(&self, other: &AABB) -> bool {
+        match self {
+            PixelVolumeNode::Pixel { point, value } => {
+                match value {
+                    true => other.contains(point),
+                    false => false,
+                }
+            }
+            PixelVolumeNode::PureArea { bound, value } => {
+                match value {
+                    true => bound.overlaps(other),
+                    false => false,
+                }
+            }
+            PixelVolumeNode::SplitArea { bound, areas } => {
+                if bound.overlaps(other) {
+                    for area in areas {
+                        if area.contains_box(other) {
+                            return true;
+                        }
+                    }
+                }
                 false
             }
-            PixelVolumeNode::FilledArea { a, b, c, d } => {
-                a.overlaps(other) || b.overlaps(other) || c.overlaps(other) || d.overlaps(other)
-            }
         }
     }
-    pub fn insert(&mut self, x: u32, y: u32) {
-        if !self.bound.contains(&Point::new(x, y)) {
-            return;
-        }
-        self.split();
-        for child in self.mut_children() {
-            if child.bound.contains(&Point::new(x, y)) {
-                child.insert(x, y);
-                break;
+    pub fn contains_tree(&self, other: &PixelVolumeNode) -> bool {
+        match self {
+            PixelVolumeNode::Pixel { point, value } => {
+                match value {
+                    true => other.contains_pixel(point.x, point.y),
+                    false => false,
+                }
             }
-        }
-    }
-    pub fn extend(&mut self, other: &PixelVolumeTree) {
-        if !self.bound.overlaps(&other.bound) {
-            return;
-        }
-        self.split();
-        for child in self.mut_children() {
-            if child.bound.overlaps(&other.bound) {
-                child.extend(other);
+            PixelVolumeNode::PureArea { bound, value } => {
+                match value {
+                    true => other.contains_box(bound),
+                    false => false,
+                }
+            }
+            PixelVolumeNode::SplitArea { bound, areas } => {
+                if bound.overlaps(&other.boundary()) {
+                    for area in areas {
+                        if area.contains_tree(other) {
+                            return true;
+                        }
+                    }
+                }
+                false
             }
         }
     }
 }
 
-#[inline]
-fn boundary_collide(a: &AABB, b: &AABB) -> bool {
-    a.min.x < b.max.x && a.max.x > b.min.x && a.min.y < b.max.y && a.max.y > b.min.y
+impl PixelVolumeNode {
+    pub fn split(&mut self) {
+        match self {
+            // do nothing
+            PixelVolumeNode::Pixel { .. } => {}
+            // do nothing
+            PixelVolumeNode::SplitArea { .. } => {}
+            PixelVolumeNode::PureArea { bound, .. } => {
+                let sx = bound.min.x;
+                let sy = bound.min.y;
+                let mx = bound.center().x;
+                let my = bound.center().y;
+                let ex = bound.max.x;
+                let ey = bound.max.y;
+                let areas = vec![
+                    PixelVolumeNode::new(AABB::new(sx, sy, mx, my), false),
+                    PixelVolumeNode::new(AABB::new(mx, sy, ex, my), false),
+                    PixelVolumeNode::new(AABB::new(sx, my, mx, ey), false),
+                    PixelVolumeNode::new(AABB::new(mx, my, ex, ey), false),
+                ];
+                *self = PixelVolumeNode::SplitArea {
+                    bound: *bound,
+                    areas,
+                };
+            }
+        }
+    }
+    pub fn insert_pixel(&mut self, x: u32, y: u32) {
+        match self {
+            PixelVolumeNode::Pixel { point, value } => {
+                if point.x != x || point.y != y {
+                    return;
+                }
+                *value = true;
+            }
+            PixelVolumeNode::PureArea { bound, value } => {
+                if *value || bound.contains(&Point::new(x, y)) {
+                    return;
+                }
+                self.split();
+                for area in self.mut_areas() {
+                    if area.contains_pixel(x, y) {
+                        area.insert_pixel(x, y);
+                        break;
+                    }
+                }
+            }
+            PixelVolumeNode::SplitArea { bound, areas } => {
+                if bound.contains(&Point::new(x, y)) {
+                    for area in areas {
+                        if area.contains_pixel(x, y) {
+                            area.insert_pixel(x, y);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    pub fn refine(&mut self) {
+        todo!()
+    }
 }
