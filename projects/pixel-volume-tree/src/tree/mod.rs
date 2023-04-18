@@ -129,7 +129,7 @@ impl PixelVolumeTree {
             }
         }
     }
-    pub fn contains_box(&self, other: &AABB) -> bool {
+    pub fn overlaps_box(&self, other: &AABB) -> bool {
         match self {
             PixelVolumeTree::Pixel { point, value } => {
                 match value {
@@ -146,7 +146,7 @@ impl PixelVolumeTree {
             PixelVolumeTree::SplitArea { bound, areas } => {
                 if bound.overlaps(other) {
                     for area in areas {
-                        if area.contains_box(other) {
+                        if area.overlaps_box(other) {
                             return true;
                         }
                     }
@@ -155,7 +155,7 @@ impl PixelVolumeTree {
             }
         }
     }
-    pub fn contains_tree(&self, other: &PixelVolumeTree) -> bool {
+    pub fn overlaps_tree(&self, other: &PixelVolumeTree) -> bool {
         match self {
             PixelVolumeTree::Pixel { point, value } => {
                 match value {
@@ -165,14 +165,14 @@ impl PixelVolumeTree {
             }
             PixelVolumeTree::PureArea { bound, value } => {
                 match value {
-                    true => other.contains_box(bound),
+                    true => other.overlaps_box(bound),
                     false => false,
                 }
             }
             PixelVolumeTree::SplitArea { bound, areas } => {
                 if bound.overlaps(&other.boundary()) {
                     for area in areas {
-                        if area.contains_tree(other) {
+                        if area.overlaps_tree(other) {
                             return true;
                         }
                     }
@@ -287,20 +287,8 @@ impl PixelVolumeTree {
         match self {
             PixelVolumeTree::Pixel { .. } => {}
             PixelVolumeTree::PureArea { .. } => {}
-            PixelVolumeTree::SplitArea { bound, areas } => {
-                match self.is_pure() {
-                    Some(v) => {
-                        *self = PixelVolumeTree::PureArea {
-                            bound: *bound,
-                            value: v,
-                        };
-                    }
-                    None => {
-                        for area in areas {
-                            area.refine();
-                        }
-                    }
-                }
+            PixelVolumeTree::SplitArea { .. } => {
+                todo!()
             }
         }
     }
