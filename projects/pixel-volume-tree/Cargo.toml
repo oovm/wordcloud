@@ -2,7 +2,7 @@
 name = "pvt"
 version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
+description = "Pixel Volume Tree"
 repository = "..."
 readme = "Readme.md"
 license = "MPL-2.0"
@@ -14,7 +14,7 @@ edition = "2018"
 
 [dependencies.shape-core]
 version = "0.1.12"
-path = "C:\\Users\\Dell\\CLionProjects\\shape-rs\\projects\\shape-core"
+#path = "C:\\Users\\Dell\\CLionProjects\\shape-rs\\projects\\shape-core"
 
 [dev-dependencies]
 
