@@ -2,9 +2,10 @@
 mod errors;
 mod fonts;
 mod selectors;
+mod layout;
 
 pub use crate::errors::{WorldCloudResult, WordCloudError};
-pub use crate::selectors::{TextPicker, ColorPicker};
+pub use crate::selectors::{ColorPicker};
 
 pub use fonts::{WordCloudCanvas, WordCloudSize, Word};
 // mod layout;
@@ -32,8 +33,6 @@ pub use fonts::{WordCloudCanvas, WordCloudSize, Word};
 //     sprite_weights: Vec<u32>,
 //     font: String,
 //     font_size: u32,
-//     rotate: Vec<u32>,
-//     rotate_weights: Vec<u32>,
 //     shape_mask: Option<DynamicImage>,
 //     /// this will disable `color_function`
 //     color_mask: Option<DynamicImage>,
