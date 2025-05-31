@@ -3,21 +3,21 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   plugins: [
     vue(),
+    UnoCSS(),
     AutoImport({
-      resolvers: [ElementPlusResolver()],
       imports: [
         'vue',
-        '@vueuse/core'
+        '@vueuse/core',
+        'vitest'
       ],
       dts: true
     }),
     Components({
-      resolvers: [ElementPlusResolver()],
       dts: true
     })
   ],
@@ -27,12 +27,9 @@ export default defineConfig({
       '@wordcloud': resolve(__dirname, '../wordcloud-ts/src')
     }
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "@/styles/variables.scss";`
-      }
-    }
+  test: {
+    globals: true,
+    environment: 'jsdom'
   },
   server: {
     port: 3000,
