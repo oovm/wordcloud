@@ -1,3 +1,25 @@
 {
-  
+  "name": "wordcloud-ts",
+  "version": "1.0.0",
+  "description": "TypeScript WordCloud Renderer with QuadTree Layout Engine",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "keywords": ["wordcloud", "typescript", "quadtree", "canvas", "svg"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "dependencies": {
+    "canvas": "^2.11.0"
+  }
 }
