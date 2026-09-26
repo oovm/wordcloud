@@ -1,0 +1,39 @@
+<template>
+  <section class="playground">
+    <label>
+      Sample text
+      <TextArea :value="text" @input="onTextInput" rows="8" />
+    </label>
+    <p>Words detected: {{ wordCount }}</p>
+    <Button type="button" @click="analyze">Analyze</Button>
+    <ul v-if="preview.length">
+      <li v-for="item in preview" :key="item.text">
+        {{ item.text }} ({{ item.frequency }})
+      </li>
+    </ul>
+  </section>
+</template>
+
+<script client>
+import { TextAnalyzer } from "@doki-land/wordcloud";
+
+export default class PlaygroundPanel {
+  text =
+    "VMZ compiles full-stack TypeScript applications. WordCloud lays out weighted tokens on a canvas.";
+  wordCount = 0;
+  preview: Array<{ text: string; frequency: number }> = [];
+  #analyzer = new TextAnalyzer();
+
+  onTextInput(event: Event) {
+    const target = event.target as HTMLTextAreaElement | null;
+    if (!target) return;
+    this.text = target.value;
+  }
+
+  analyze() {
+    const frequencies = this.#analyzer.analyze(this.text);
+    this.wordCount = frequencies.length;
+    this.preview = frequencies.slice(0, 12);
+  }
+}
+</script>

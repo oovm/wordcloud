@@ -11,7 +11,7 @@
         "test:rs": "cargo test --release",
         "test:ts": "pnpm --filter @doki-land/wordcloud test",
         "bench": "pnpm --filter wordcloud-benchmark bench",
-        "test:web": "pnpm --filter homepage test",
+        "test:web": "pnpm --filter homepage check",
         "dev": "pnpm -r dev",
         "dev:rs": "cd projects/crates/wordcloud && cargo run",
         "dev:ts": "cd projects/packages/wordcloud && pnpm dev",

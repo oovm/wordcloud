@@ -1,0 +1,18 @@
+<template>
+  <AppShell brand="WordCloud" home-href="/" nav-label="Playground">
+    <Card title="WordCloud Playground" description="TypeScript word cloud generator with layout, renderer, and loader adapters.">
+      <Prose>
+        <p>
+          Edit text on the left, tune layout options, and preview the cloud on the right.
+          Tokenization adapters (nodejieba, natural, Papa Parse) live in this app layer, not in
+          <code>@doki-land/wordcloud-loader</code>.
+        </p>
+      </Prose>
+      <PlaygroundPanel />
+    </Card>
+  </AppShell>
+</template>
+
+<script client>
+export default class IndexPage {}
+</script>
